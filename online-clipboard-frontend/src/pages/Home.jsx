@@ -7,7 +7,7 @@ import Features from "../components/Features";
 
 // --- REUSABLE WINDOW COMPONENT ---
 const TerminalWindow = ({ title, children, color = "gray" }) => (
-  <div className="bg-[#0A0A0A] border border-[#141416] rounded-lg shadow-2xl flex flex-col h-full overflow-hidden hover:border-gray-700 transition-colors group">
+  <div className="bg-[#0A0A0A] border border-[#141416] rounded-md shadow-2xl flex flex-col h-full overflow-hidden transition-colors group">
     {/* Window Header */}
     <div className="bg-[#111] border-b border-[#141416] p-3 flex items-center justify-between">
       <div className="flex gap-2">
@@ -100,7 +100,7 @@ export default function Home({ user }) {
     <div className="max-w-[1400px] mx-auto px-6 pt-12 pb-20 font-sans">
       
       {/* Friendly Header */}
-      <div className="mb-12 border-l-4 border-blue-600 pl-6 py-2">
+      <div className="mb-12 border-l-4 border-blue-400 pl-6 py-2">
         <h1 className="text-3xl font-bold text-white tracking-tight mb-2 flex items-center gap-3">
           <Terminal className="w-8 h-8 text-blue-500" />
           Online Clipboard
@@ -129,7 +129,7 @@ export default function Home({ user }) {
           <button
             onClick={handleTextUpload}
             disabled={loading || !textInput}
-            className="w-full bg-[#1A1A1A] hover:bg-[#222] border border-[#333] hover:border-white text-white py-3 rounded text-sm font-bold tracking-wide uppercase transition-all flex items-center justify-center gap-2"
+            className="w-full bg-[#1A1A1A] hover:bg-[#222] border border-[#333] hover:border-white text-white py-3 rounded text-sm font-bold tracking-wide uppercase transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             {loading ? "Saving..." : <> <Save className="w-4 h-4" /> Save Clip </>}
           </button>
@@ -180,7 +180,7 @@ export default function Home({ user }) {
           <button
             onClick={handleRetrieve}
             disabled={loading || retrieveCode.length < 5}
-            className="w-full bg-[#1A1A1A] hover:bg-[#222] border border-[#333] hover:border-white text-white py-3 rounded text-sm font-bold tracking-wide uppercase transition-all flex items-center justify-center gap-2 mb-4"
+            className="w-full bg-[#1A1A1A] hover:bg-[#222] border border-[#333] cursor-pointer hover:border-white text-white py-3 rounded text-sm font-bold tracking-wide uppercase transition-all flex items-center justify-center gap-2 mb-4"
           >
             {loading ? "Searching..." : <> <Download className="w-4 h-4" /> Get Content </>}
           </button>
@@ -223,7 +223,7 @@ export default function Home({ user }) {
             exit={{ opacity: 0, scale: 0.9 }}
             className="fixed bottom-8 right-8 z-50"
           >
-            <div className="bg-[#0A0A0A] border border-[#141416] rounded-lg shadow-2xl w-80 overflow-hidden">
+            <div className="bg-[#0A0A0A] border border-[#141416] rounded-md shadow-2xl w-80 overflow-hidden">
               <div className="bg-emerald-900/20 border-b border-emerald-900/30 p-3 px-4 flex justify-between items-center">
                 <span className="text-xs font-bold text-emerald-500 uppercase tracking-wide flex items-center gap-2">
                   <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />

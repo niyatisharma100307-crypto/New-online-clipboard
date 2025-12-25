@@ -45,7 +45,7 @@ export default function Features() {
         {features.map((feature, idx) => (
           <div 
             key={idx} 
-            className="group bg-[#0A0A0A] border border-[#141416] p-6 rounded-lg hover:border-gray-600 transition-all duration-300 relative overflow-hidden"
+            className="group bg-[#0A0A0A] border border-[#141416] p-6 rounded-md transition-all duration-300 relative overflow-hidden"
           >
             <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${feature.gradient} opacity-5 group-hover:opacity-10 rounded-bl-full transition-opacity`} />
             

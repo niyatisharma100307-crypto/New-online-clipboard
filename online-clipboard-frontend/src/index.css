@@ -1,8 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+/* 1. Import Hanken Grotesk instead of Inter */
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", sans-serif;
+  /* 2. Update the theme variable */
+  --font-sans: "Hanken Grotesk", sans-serif;
 }
 
 /* Dark Mode Scrollbar */
@@ -21,7 +23,8 @@
 }
 
 body {
-  font-family: "Inter", sans-serif;
+  /* 3. Update the body font */
+  font-family: "Hanken Grotesk", sans-serif;
   background-color: #000000; /* Deep Black */
   color: #e5e5e5; /* Light Gray text */
 }

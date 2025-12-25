@@ -10,4 +10,9 @@ public interface ClipService {
     ClipDto getClip(String code);
 
     List<ClipDto> getUserClips(String username);
+
+    ClipDto deleteById(Long id);
+
+
+    ClipDto updateById(Long id, ClipDto clipDto);
 }

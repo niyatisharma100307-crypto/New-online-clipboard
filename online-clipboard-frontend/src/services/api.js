@@ -1,6 +1,4 @@
-
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
-
 
 export const createClip = async (content, username = null) => {
   const payload = { content, username };
@@ -25,7 +23,6 @@ export const getUserClips = async (username) => {
   return response.json();
 };
 
-
 export const authUser = async (username, password) => {
   const response = await fetch(`${API_URL}/user`, {
     method: "POST",
@@ -36,5 +33,24 @@ export const authUser = async (username, password) => {
   if (!response.ok) {
     throw new Error("Invalid credentials or username taken");
   }
+  return response.json();
+};
+
+
+export const deleteClip = async (id) => {
+  const response = await fetch(`${API_URL}/clips/${id}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) throw new Error("Failed to delete clip");
+  return response.json();
+};
+
+export const updateClip = async (id, content) => {
+  const response = await fetch(`${API_URL}/clips/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ content }),
+  });
+  if (!response.ok) throw new Error("Failed to update clip");
   return response.json();
 };

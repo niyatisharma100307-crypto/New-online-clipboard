@@ -4,6 +4,8 @@ package com.online_clipboard_backend.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 @Entity
 public class Clip {
@@ -22,5 +24,13 @@ public class Clip {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreated() {
+        createdAt = LocalDateTime.now();
+    }
 
 }

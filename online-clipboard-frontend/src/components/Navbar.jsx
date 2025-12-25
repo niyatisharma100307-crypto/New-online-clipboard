@@ -16,16 +16,11 @@ export default function Navbar({ user, setUser }) {
         
         {/* Logo Section */}
         <Link to="/" className="flex items-center gap-3 group">
-          <div className="bg-[#111] border border-[#222] p-2 rounded-lg group-hover:border-blue-500/50 transition-colors">
-            <Terminal className="w-5 h-5 text-blue-500" />
-          </div>
           <div className="flex flex-col">
-            <span className="text-sm font-bold text-white tracking-tight leading-none">
+            <span className="text-lg font-sans text-white leading-none">
               Online Clipboard
             </span>
-            <span className="text-[10px] text-gray-500 font-mono group-hover:text-blue-400 transition-colors">
-              v2.0.0 // stable
-            </span>
+          
           </div>
         </Link>
 

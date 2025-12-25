@@ -25,7 +25,15 @@ public class ClipServiceImpl implements ClipService {
     @Override
     public ClipDto createClip(ClipDto clipDto) {
 
-        String randomCode = String.valueOf(10000 + new Random().nextInt(90000));
+        String randomCode;
+        Random random = new Random();
+
+        do {
+            int number = random.nextInt(100000);
+            randomCode = String.format("%05d", number);
+
+        } while (clipRepository.findByCode(randomCode).isPresent());
+
         clipDto.setCode(randomCode);
 
 
@@ -74,4 +82,23 @@ public class ClipServiceImpl implements ClipService {
                 })
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public ClipDto deleteById(Long id) {
+        Clip clip = clipRepository.findById(id).orElseThrow(() -> new RuntimeException("Clip not found"));
+        ClipDto deletedClip = modelMapper.map(clip, ClipDto.class);
+        clipRepository.deleteById(id);
+        return deletedClip;
+
+    }
+
+    @Override
+    public ClipDto updateById(Long id, ClipDto clipDto) {
+        Clip oldClip = clipRepository.findById(id).orElseThrow();
+        oldClip.setContent(clipDto.getContent());
+        Clip newClip = clipRepository.save(oldClip);
+        return modelMapper.map(newClip, ClipDto.class);
+    }
+
+
 }

@@ -19,7 +19,6 @@ public class ClipController {
 
     @PostMapping
     public ClipDto createClip(@RequestBody ClipDto clipDto) {
-
         return clipService.createClip(clipDto);
     }
 
@@ -31,6 +30,16 @@ public class ClipController {
     @GetMapping("/user/{username}")
     public List<ClipDto> getUserClips(@PathVariable String username) {
         return clipService.getUserClips(username);
+    }
+
+    @DeleteMapping("/{id}")
+    public ClipDto deleteClip(@PathVariable Long id) {
+        return clipService.deleteById(id);
+    }
+
+    @PutMapping("/{id}")
+    public ClipDto updateClip(@PathVariable Long id , @RequestBody ClipDto clipDto) {
+        return clipService.updateById(id , clipDto);
     }
 
 

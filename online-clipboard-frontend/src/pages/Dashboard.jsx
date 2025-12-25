@@ -1,49 +1,119 @@
 import { useEffect, useState } from "react";
 import { getUserClips } from "../services/api";
-import { Copy, Clock } from "lucide-react";
+import { Copy, Terminal, Search } from "lucide-react";
+import { toast } from "sonner";
 
 export default function Dashboard({ user }) {
   const [clips, setClips] = useState([]);
+  const [filter, setFilter] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user?.username) {
-      getUserClips(user.username).then(setClips);
+      getUserClips(user.username)
+        .then((data) => {
+          setClips(data.reverse()); 
+        })
+        .finally(() => setLoading(false));
     }
   }, [user]);
 
-  return (
-    <div className="max-w-6xl mx-auto px-4 py-10">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-        <Clock className="w-6 h-6 text-blue-600" /> Your History
-      </h2>
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    toast.success("Copied to clipboard");
+  };
 
-      {clips.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-300">
-          <p className="text-gray-400 text-lg">You haven't saved any clips yet.</p>
+  const filteredClips = clips.filter(
+    (clip) =>
+      clip.content.toLowerCase().includes(filter.toLowerCase()) ||
+      clip.code.includes(filter)
+  );
+
+  return (
+    <div className="px-20 mx-auto py-12">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+            <Terminal className="w-6 h-6 text-gray-400" /> 
+            Clip History
+          </h1>
+          <p className="text-gray-500 text-sm mt-1">
+            Manage and retrieve your synced content.
+          </p>
         </div>
-      ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {clips.map((clip) => (
-            <div key={clip.code} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition group relative">
-              <div className="absolute top-4 right-4 bg-gray-100 px-2 py-1 rounded text-xs font-mono font-bold text-gray-600">
-                #{clip.code}
+
+        <div className="relative w-full md:w-64">
+          <Search className="absolute left-3 top-2.5 text-gray-500 w-4 h-4" />
+          <input 
+            type="text" 
+            placeholder="Filter logs..."
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            // FIXED: border-[#141416]
+            className="w-full bg-[#0A0A0A] border border-[#141416] text-gray-300 pl-9 pr-4 py-2 rounded text-sm focus:ring-1 focus:ring-gray-600 outline-none placeholder-gray-600"
+          />
+        </div>
+      </div>
+
+      {/* FIXED: border-[#141416] */}
+      <div className="border border-[#141416] rounded-lg overflow-hidden bg-[#0A0A0A] shadow-sm">
+        
+        {/* FIXED: border-[#141416] */}
+        <div className="grid grid-cols-12 border-b border-[#141416] bg-[#111] py-3 px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
+          <div className="col-span-2">Code</div>
+          <div className="col-span-9">Content Preview</div>
+          <div className="col-span-1 text-right">Action</div>
+        </div>
+
+        {loading && (
+          <div className="p-8 text-center text-gray-500 text-sm font-mono animate-pulse">
+            Loading streams...
+          </div>
+        )}
+
+        {!loading && filteredClips.length === 0 && (
+          <div className="p-12 text-center">
+            <p className="text-gray-500 text-sm">No clips found matching your criteria.</p>
+          </div>
+        )}
+
+        <div className="divide-y divide-gray-800/50">
+          {filteredClips.map((clip) => (
+            <div 
+              key={clip.code} 
+              className="grid grid-cols-12 items-center py-3 px-4 hover:bg-[#161616] transition-colors group text-sm font-mono"
+            >
+              <div className="col-span-2 flex items-center gap-2">
+                <span className="text-white font-bold">
+                  #{clip.code}
+                </span>
               </div>
-              <p className="text-gray-800 line-clamp-4 font-mono text-sm mb-4 min-h-[4rem]">
-                {clip.content}
-              </p>
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(clip.content);
-                  alert("Copied!");
-                }}
-                className="w-full flex items-center justify-center gap-2 text-blue-600 bg-blue-50 py-2 rounded-lg text-sm font-medium opacity-0 group-hover:opacity-100 transition"
-              >
-                <Copy className="w-4 h-4" /> Copy Content
-              </button>
+              <div className="col-span-9 pr-8">
+                <p className="text-gray-300 truncate opacity-80 group-hover:opacity-100 transition-opacity">
+                  {clip.content}
+                </p>
+              </div>
+              <div className="col-span-1 flex justify-end">
+                <button
+                  onClick={() => copyToClipboard(clip.content)}
+                  className="text-gray-500 hover:text-white opacity-0 group-hover:opacity-100 transition-all p-1.5 rounded hover:bg-gray-800"
+                  title="Copy Content"
+                >
+                  <Copy className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           ))}
         </div>
-      )}
+      </div>
+      
+      <div className="mt-4 flex items-center justify-between text-xs text-gray-600 font-mono">
+        <span>Total Clips: {filteredClips.length}</span>
+        <span className="flex items-center gap-1">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+          Live Sync
+        </span>
+      </div>
     </div>
   );
 }

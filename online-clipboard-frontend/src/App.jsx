@@ -4,11 +4,11 @@ import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import { Toaster } from "sonner"; // Ensure Toaster is here for notifications
 
 function App() {
   const [user, setUser] = useState(null);
 
-  // Check for saved user on load
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
@@ -18,7 +18,12 @@ function App() {
 
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-gray-50/50 font-sans text-gray-900">
+      {/* 1. Add Toaster for the black notifications */}
+      <Toaster theme="dark" position="bottom-right" />
+
+      {/* 2. FIXED: Changed bg-gray-50 to bg-black and text-gray-900 to text-white */}
+      <div className="min-h-screen bg-black text-gray-200 font-sans selection:bg-purple-500 selection:text-white">
+        
         <Navbar user={user} setUser={setUser} />
 
         <Routes>
@@ -26,7 +31,7 @@ function App() {
           <Route
             path="/login"
             element={
-              !user ? <Auth setUser={setUser} /> : <Navigate to="/dashboard" />
+              !user ? <Auth setUser={setUser} /> : <Navigate to="/" />
             }
           />
           <Route

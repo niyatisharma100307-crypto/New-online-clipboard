@@ -3,15 +3,18 @@ import { useNavigate } from "react-router-dom";
 import { authUser } from "../services/api";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { ArrowRight, Lock, User as UserIcon, Loader2 } from "lucide-react";
+import { ChevronRight, Loader2, UserCircle } from "lucide-react";
 
 export default function Auth({ setUser }) {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [loading, setLoading] = useState(false);
+  const [focusedField, setFocusedField] = useState(null);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.username || !formData.password) return;
+    
     setLoading(true);
     
     try {
@@ -19,66 +22,110 @@ export default function Auth({ setUser }) {
       setUser(user);
       localStorage.setItem("user", JSON.stringify(user)); 
       
-      toast.success(`Welcome back, ${user.username}!`);
-      
-      // REDIRECT FIX: Go to Home instead of Dashboard
+      toast.success("Login successful!");
       navigate("/"); 
 
     } catch (err) {
-      toast.error("Invalid credentials or username taken");
+      toast.error("Incorrect username or password.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex justify-center items-center min-h-[85vh] px-4">
+    <div className="flex justify-center items-center min-h-[85vh] px-4 font-sans">
       <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="bg-white p-8 sm:p-10 rounded-3xl shadow-2xl shadow-slate-200/50 w-full max-w-md border border-slate-100"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-md"
       >
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-slate-800 tracking-tight">Access Cloud</h2>
-          <p className="text-slate-500 mt-2 text-sm">Login or Signup to sync your history</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="space-y-1">
-            <div className="relative group">
-              <UserIcon className="absolute left-4 top-3.5 text-slate-400 w-5 h-5 group-focus-within:text-blue-600 transition-colors" />
-              <input
-                type="text"
-                required
-                placeholder="Username"
-                className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-medium"
-                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-              />
-            </div>
-          </div>
+        <div className="bg-[#0A0A0A] border border-[#141416] rounded-lg shadow-2xl overflow-hidden relative">
           
-          <div className="space-y-1">
-            <div className="relative group">
-              <Lock className="absolute left-4 top-3.5 text-slate-400 w-5 h-5 group-focus-within:text-blue-600 transition-colors" />
-              <input
-                type="password"
-                required
-                placeholder="Password"
-                className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-medium"
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              />
+          {/* Header */}
+          <div className="bg-[#111] border-b border-[#141416] p-3 flex items-center justify-between">
+            <div className="flex gap-2">
+              <div className="w-3 h-3 rounded-full bg-[#FF5F56]" />
+              <div className="w-3 h-3 rounded-full bg-[#FFBD2E]" />
+              <div className="w-3 h-3 rounded-full bg-[#27C93F]" />
             </div>
+            <div className="text-xs text-gray-400 font-bold uppercase tracking-wider flex items-center gap-2">
+              <UserCircle className="w-3 h-3" />
+              Secure Login
+            </div>
+            <div className="w-12"></div>
           </div>
 
-          <motion.button 
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            disabled={loading}
-            className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-black transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed mt-4"
-          >
-            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Continue <ArrowRight className="w-4 h-4" /></>}
-          </motion.button>
-        </form>
+          <div className="p-8">
+            
+            {/* Friendly Welcome Message */}
+            <div className="mb-8 space-y-1 text-sm text-center">
+              <h2 className="text-xl text-white font-bold">Welcome Back</h2>
+              <p className="text-gray-500">Sign in to access your history.</p>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              
+              {/* Username */}
+              <div className={`transition-opacity duration-300 ${focusedField === 'password' ? 'opacity-50' : 'opacity-100'}`}>
+                <label className="text-xs text-blue-500 font-bold mb-1 block uppercase tracking-wide">
+                  Username
+                </label>
+                <div className={`flex items-center bg-[#111] border ${focusedField === 'username' ? 'border-blue-500/50' : 'border-[#141416]'} p-3 rounded transition-colors`}>
+                  <input
+                    type="text"
+                    required
+                    autoFocus
+                    value={formData.username}
+                    onFocus={() => setFocusedField('username')}
+                    onBlur={() => setFocusedField(null)}
+                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                    className="bg-transparent border-none outline-none text-gray-200 w-full placeholder-gray-700 text-sm"
+                    placeholder="Enter your username"
+                  />
+                </div>
+              </div>
+
+              {/* Password */}
+              <div className={`transition-opacity duration-300 ${focusedField === 'username' ? 'opacity-50' : 'opacity-100'}`}>
+                <label className="text-xs text-purple-500 font-bold mb-1 block uppercase tracking-wide">
+                  Password
+                </label>
+                <div className={`flex items-center bg-[#111] border ${focusedField === 'password' ? 'border-purple-500/50' : 'border-[#141416]'} p-3 rounded transition-colors`}>
+                  <input
+                    type="password"
+                    required
+                    value={formData.password}
+                    onFocus={() => setFocusedField('password')}
+                    onBlur={() => setFocusedField(null)}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    className="bg-transparent border-none outline-none text-gray-200 w-full placeholder-gray-700 text-sm"
+                    placeholder="Enter your password"
+                  />
+                </div>
+              </div>
+
+              {/* Submit */}
+              <motion.button 
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                disabled={loading}
+                className="w-full bg-[#1A1A1A] hover:bg-[#222] border border-[#333] hover:border-white text-white py-3 rounded text-sm font-bold tracking-wide uppercase transition-all flex items-center justify-center gap-2 mt-6 group"
+              >
+                {loading ? (
+                  <> <Loader2 className="w-4 h-4 animate-spin" /> Signing In... </>
+                ) : (
+                  <> Sign In <ChevronRight className="w-4 h-4 text-gray-500 group-hover:text-white transition-colors" /> </>
+                )}
+              </motion.button>
+
+            </form>
+          </div>
+        </div>
+        
+        <p className="text-center text-xs text-gray-600 mt-6">
+          New here? Just sign in and we'll create an account for you.
+        </p>
+
       </motion.div>
     </div>
   );

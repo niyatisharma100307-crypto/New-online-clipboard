@@ -1,5 +1,16 @@
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
 
+
+export const wakeUpServer = async () => {
+  try {
+    await fetch(`${API_URL}/health-check`); 
+    console.log("Server poked to wake up!");
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+
 export const createClip = async (content, username = null) => {
   const payload = { content, username };
   const response = await fetch(`${API_URL}/clips`, {

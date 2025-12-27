@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getUserClips, deleteClip, updateClip } from "../services/api";
-import { Copy, Terminal, Search, Trash2, Edit2, Save, X, Loader2, Clock } from "lucide-react";
+import { Copy, Terminal, Search, Trash2, Edit2, Save, X, Loader2, Clock, Download, FileText } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Dashboard({ user }) {
@@ -8,7 +8,7 @@ export default function Dashboard({ user }) {
   const [filter, setFilter] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // --- EDITING STATE ---
+
   const [editingId, setEditingId] = useState(null);
   const [editContent, setEditContent] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
@@ -28,7 +28,19 @@ export default function Dashboard({ user }) {
     toast.success("Copied to clipboard");
   };
 
-  // --- HANDLERS ---
+  const isBase64File = (content) => {
+    return content && content.startsWith("data:");
+  };
+
+  const downloadFile = (content, filename) => {
+    const link = document.createElement("a");
+    link.href = content;
+    link.download = filename || "downloaded-file";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const handleDelete = async (id) => {
     if (!confirm("Are you sure you want to delete this clip?")) return;
     const previousClips = [...clips];
@@ -43,6 +55,10 @@ export default function Dashboard({ user }) {
   };
 
   const startEdit = (clip) => {
+    if (isBase64File(clip.content)) {
+      toast.error("Cannot edit binary files directly.");
+      return;
+    }
     setEditingId(clip.id);
     setEditContent(clip.content);
   };
@@ -73,7 +89,6 @@ export default function Dashboard({ user }) {
       clip.code.includes(filter)
   );
 
-  // Helper to format date
   const formatDate = (dateString) => {
     if (!dateString) return "";
     return new Date(dateString).toLocaleString('en-US', {
@@ -114,29 +129,26 @@ export default function Dashboard({ user }) {
       {/* Table Container */}
       <div className="border border-[#141416] rounded-md overflow-hidden bg-[#0A0A0A] shadow-sm">
         
-        {/* Table Header - Added "Created" Column */}
+        {/* Table Header */}
         <div className="grid grid-cols-12 border-b border-[#141416] bg-[#111] py-3 px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
           <div className="col-span-2">Code</div>
           <div className="col-span-6">Content Preview</div>
-          <div className="col-span-2">Created</div> {/* NEW COLUMN HEADER */}
+          <div className="col-span-2">Created</div>
           <div className="col-span-2 text-right">Actions</div>
         </div>
 
-        {/* Loading */}
         {loading && (
           <div className="p-8 text-center text-gray-500 text-sm font-mono animate-pulse">
             Loading streams...
           </div>
         )}
 
-        {/* Empty */}
         {!loading && filteredClips.length === 0 && (
           <div className="p-12 text-center">
             <p className="text-gray-500 text-sm">No clips found matching your criteria.</p>
           </div>
         )}
 
-        {/* List */}
         <div className="divide-y divide-gray-800/50">
           {filteredClips.map((clip) => (
             <div 
@@ -144,14 +156,14 @@ export default function Dashboard({ user }) {
               className="grid grid-cols-12 items-center py-3 px-4 hover:bg-[#161616] transition-colors group text-sm font-mono"
             >
               
-              {/* CODE */}
+            
               <div className="col-span-2 flex items-center gap-2">
                 <span className="text-white font-bold">
                   #{clip.code}
                 </span>
               </div>
 
-              {/* CONTENT */}
+           
               <div className="col-span-6 pr-4">
                 {editingId === clip.id ? (
                   <input 
@@ -166,19 +178,27 @@ export default function Dashboard({ user }) {
                     }}
                   />
                 ) : (
-                  <p className="text-gray-300 truncate opacity-80 group-hover:opacity-100 transition-opacity">
-                    {clip.content}
-                  </p>
+                
+                  isBase64File(clip.content) ? (
+                    <div className="flex items-center gap-2 text-blue-400">
+                      <FileText className="w-4 h-4" />
+                      <span className="italic">Binary File (Base64)</span>
+                    </div>
+                  ) : (
+                    <p className="text-gray-300 truncate opacity-80 group-hover:opacity-100 transition-opacity">
+                      {clip.content}
+                    </p>
+                  )
                 )}
               </div>
 
-              {/* NEW: CREATED AT COLUMN */}
+           
               <div className="col-span-2 flex items-center gap-2 text-xs text-gray-500">
                 <Clock className="w-3 h-3" />
                 {formatDate(clip.createdAt)}
               </div>
 
-              {/* ACTIONS */}
+           
               <div className="col-span-2 flex justify-end gap-2">
                 {editingId === clip.id ? (
                   <>
@@ -191,13 +211,25 @@ export default function Dashboard({ user }) {
                   </>
                 ) : (
                   <div className="flex gap-1">
-                    <button
-                      onClick={() => copyToClipboard(clip.content)}
-                      className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-800 rounded"
-                      title="Copy"
-                    >
-                      <Copy className="w-4 h-4" />
-                    </button>
+                 
+                    {isBase64File(clip.content) ? (
+                        <button
+                          onClick={() => downloadFile(clip.content, `clip-${clip.code}`)}
+                          className="p-1.5 text-purple-500 hover:text-white hover:bg-purple-500/20 rounded"
+                          title="Download File"
+                        >
+                          <Download className="w-4 h-4" />
+                        </button>
+                    ) : (
+                        <button
+                          onClick={() => copyToClipboard(clip.content)}
+                          className="p-1.5 text-gray-500 hover:text-white hover:bg-gray-800 rounded"
+                          title="Copy"
+                        >
+                          <Copy className="w-4 h-4" />
+                        </button>
+                    )}
+
                     <button
                       onClick={() => startEdit(clip)}
                       className="p-1.5 text-blue-500 hover:text-blue-400 hover:bg-blue-500/10 rounded"

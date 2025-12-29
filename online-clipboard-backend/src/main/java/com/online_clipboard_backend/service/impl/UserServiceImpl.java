@@ -6,7 +6,10 @@ import com.online_clipboard_backend.repository.UserRepository;
 import com.online_clipboard_backend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -17,6 +20,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserDto createUser(UserDto userDto) {
@@ -24,16 +28,17 @@ public class UserServiceImpl implements UserService {
 
         if (user.isEmpty()) {
             User newUser = modelMapper.map(userDto, User.class);
+            newUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
             User savedUser = userRepository.save(newUser);
             return modelMapper.map(savedUser, UserDto.class);
         } else {
 
             User existingUser = user.get();
 
-            if (userDto.getPassword().equals(existingUser.getPassword())) {
+            if (passwordEncoder.matches(userDto.getPassword(), existingUser.getPassword())) {
                 return modelMapper.map(existingUser, UserDto.class);
             } else {
-                throw new RuntimeException("Invalid password or username");
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid password");
             }
         }
     }

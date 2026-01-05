@@ -8,7 +8,6 @@ export default function Dashboard({ user }) {
   const [filter, setFilter] = useState("");
   const [loading, setLoading] = useState(true);
 
-
   const [editingId, setEditingId] = useState(null);
   const [editContent, setEditContent] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
@@ -32,10 +31,20 @@ export default function Dashboard({ user }) {
     return content && content.startsWith("data:");
   };
 
-  const downloadFile = (content, filename) => {
+  // --- UPDATED DOWNLOAD FUNCTION ---
+  const downloadFile = (content, filenameCode) => {
     const link = document.createElement("a");
     link.href = content;
-    link.download = filename || "downloaded-file";
+    
+    // Auto-detect extension
+    let extension = "bin";
+    if (content.startsWith("data:image/")) extension = "png"; // or jpg
+    if (content.startsWith("data:application/pdf")) extension = "pdf";
+    // Detect Zip
+    if (content.startsWith("data:application/zip") || content.includes(";base64,UEsDB")) extension = "zip";
+    
+    link.download = `clip-${filenameCode}.${extension}`;
+    
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -156,14 +165,12 @@ export default function Dashboard({ user }) {
               className="grid grid-cols-12 items-center py-3 px-4 hover:bg-[#161616] transition-colors group text-sm font-mono"
             >
               
-            
               <div className="col-span-2 flex items-center gap-2">
                 <span className="text-white font-bold">
                   #{clip.code}
                 </span>
               </div>
 
-           
               <div className="col-span-6 pr-4">
                 {editingId === clip.id ? (
                   <input 
@@ -178,7 +185,6 @@ export default function Dashboard({ user }) {
                     }}
                   />
                 ) : (
-                
                   isBase64File(clip.content) ? (
                     <div className="flex items-center gap-2 text-blue-400">
                       <FileText className="w-4 h-4" />
@@ -192,13 +198,11 @@ export default function Dashboard({ user }) {
                 )}
               </div>
 
-           
               <div className="col-span-2 flex items-center gap-2 text-xs text-gray-500">
                 <Clock className="w-3 h-3" />
                 {formatDate(clip.createdAt)}
               </div>
 
-           
               <div className="col-span-2 flex justify-end gap-2">
                 {editingId === clip.id ? (
                   <>

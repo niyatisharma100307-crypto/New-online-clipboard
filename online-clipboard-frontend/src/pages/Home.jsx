@@ -4,6 +4,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { createClip, getClipByCode } from "../services/api";
 import Features from "../components/Features";
+import JSZip from "jszip"; 
+import TerminalLoader from "../components/TerminalLoader";
+
 
 const TerminalWindow = ({ title, children, color = "gray" }) => (
   <div className="bg-[#0A0A0A] border border-[#141416] rounded-md shadow-2xl flex flex-col h-full overflow-hidden transition-colors group">
@@ -31,6 +34,7 @@ export default function Home({ user }) {
   const [retrievedClip, setRetrievedClip] = useState(null);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
+  
 
   const handleTextUpload = async () => {
     if (!textInput.trim()) return;
@@ -47,34 +51,81 @@ export default function Home({ user }) {
     }
   };
 
+  // --- UPDATED UPLOAD LOGIC ---
   const handleFileUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
+    // A. SINGLE FILE
+    if (files.length === 1) {
+      const file = files[0];
+      // Limit 10MB
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error("File is too large (Max 10MB).");
+        return;
+      }
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("File is too large (Max 5MB).");
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const content = event.target.result;
+        setLoading(true);
+        try {
+          const data = await createClip(content, user?.username);
+          setGeneratedCode(data.code);
+          toast.success(`File "${file.name}" uploaded!`);
+        } catch (err) {
+          toast.error("Upload failed.");
+        } finally {
+          setLoading(false);
+          if (fileInputRef.current) fileInputRef.current.value = "";
+        }
+      };
+      reader.readAsDataURL(file);
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-      const content = event.target.result; 
-      setLoading(true);
-      try {
-        const data = await createClip(content, user?.username);
-        setGeneratedCode(data.code);
-        toast.success(`File "${file.name}" uploaded!`);
-      } catch (err) {
-        toast.error("Upload failed. File might be too large for the connection.");
-      } finally {
-        setLoading(false);
-        if (fileInputRef.current) fileInputRef.current.value = "";
-      }
-    };
-    
+    // B. MULTIPLE FILES (Group Upload)
+    setLoading(true);
+    const zip = new JSZip();
+    let totalSize = 0;
 
-    reader.readAsDataURL(file); 
+    // Add files to zip
+    Array.from(files).forEach((file) => {
+      totalSize += file.size;
+      zip.file(file.name, file);
+    });
+
+    if (totalSize > 10 * 1024 * 1024) {
+      setLoading(false);
+      return toast.error("Total group size too large (Max 10MB).");
+    }
+
+    try {
+      // Generate Zip Blob
+      const contentBlob = await zip.generateAsync({ type: "blob" });
+      
+      // Convert to Base64
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        try {
+          const base64String = event.target.result;
+          const data = await createClip(base64String, user?.username);
+          setGeneratedCode(data.code);
+          toast.success(`${files.length} files zipped & uploaded!`);
+        } catch (err) {
+          toast.error("Upload failed.");
+        } finally {
+          setLoading(false);
+          if (fileInputRef.current) fileInputRef.current.value = "";
+        }
+      };
+      reader.readAsDataURL(contentBlob);
+
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to zip files.");
+      setLoading(false);
+    }
   };
 
   const handleRetrieve = async (e) => {
@@ -102,10 +153,18 @@ export default function Home({ user }) {
     return content && content.startsWith("data:");
   };
 
+  // Improved Download Handler for Retrieve Box
   const downloadFile = (content) => {
     const link = document.createElement("a");
     link.href = content;
-    link.download = "downloaded-file";
+    
+    // Auto-detect extension
+    let extension = "bin";
+    if (content.startsWith("data:image/")) extension = "png";
+    if (content.startsWith("data:application/pdf")) extension = "pdf";
+    if (content.startsWith("data:application/zip") || content.includes(";base64,UEsDB")) extension = "zip";
+
+    link.download = `downloaded-file.${extension}`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -145,22 +204,24 @@ export default function Home({ user }) {
         {/* COL 2: UPLOAD FILE */}
         <TerminalWindow title="2. Upload File" color="purple">
           <div className="text-gray-400 text-xs mb-4 flex items-center gap-2">
-            <span className="text-purple-500 font-bold">Option B:</span> Upload a file (Max 5MB).
+            <span className="text-purple-500 font-bold">Option B:</span> Upload files (Max 10MB).
           </div>
           <div className="flex-1 flex flex-col justify-center">
-            <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" />
+            {/* ADDED 'multiple' HERE */}
+            <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" multiple />
+            
             <div onClick={() => fileInputRef.current?.click()} className="border border-dashed border-[#333] hover:border-purple-500/50 bg-[#111] rounded h-full min-h-[150px] flex flex-col items-center justify-center cursor-pointer transition-all group relative overflow-hidden">
               <FileUp className="w-10 h-10 text-gray-600 group-hover:text-purple-400 mb-3 transition-colors" />
-              <span className="text-gray-500 text-xs font-bold uppercase tracking-wider group-hover:text-purple-300">Click to Select File</span>
+              <span className="text-gray-500 text-xs font-bold uppercase tracking-wider group-hover:text-purple-300">Click to Select Files</span>
             </div>
           </div>
-          <div className="mt-4 text-center text-[10px] text-gray-500">Supports: Images, PDF, TXT, ZIP</div>
+          <div className="mt-4 text-center text-[10px] text-gray-500">Supports: Single Files or Groups (Auto-Zip)</div>
         </TerminalWindow>
 
         {/* COL 3: RETRIEVE */}
         <TerminalWindow title="3. Retrieve" color="emerald">
           <div className="text-gray-400 text-xs mb-4 flex items-center gap-2">
-            <span className="text-emerald-500 font-bold">Action:</span>Have a code? Enter it.
+            <span className="text-emerald-500 font-bold">Action:</span> Have a code? Enter it.
           </div>
           <div className="flex gap-2 mb-4">
             <input type="text" value={retrieveCode} onChange={(e) => setRetrieveCode(e.target.value)} maxLength={5} placeholder="Ex: 12345" className="w-full bg-[#111] border border-[#141416] text-white p-3 rounded focus:border-emerald-500/50 outline-none text-lg text-center font-bold tracking-widest placeholder-gray-700" />
@@ -209,6 +270,7 @@ export default function Home({ user }) {
       <Features />
 
       <AnimatePresence>
+        {loading && <TerminalLoader message="TRANSMITTING" />}
         {generatedCode && (
           <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="fixed bottom-8 right-8 z-50">
             <div className="bg-[#0A0A0A] border border-[#141416] rounded-md shadow-2xl w-80 overflow-hidden">

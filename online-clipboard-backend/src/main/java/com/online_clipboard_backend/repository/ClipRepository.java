@@ -18,4 +18,6 @@ public interface ClipRepository extends JpaRepository<Clip, Long> {
 
     void deleteByCreatedAtBefore(LocalDateTime expiryDate);
 
+    List<Clip> findByVisibleTrueOrderByCreatedAtDesc ();
+
 }

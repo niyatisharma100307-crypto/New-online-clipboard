@@ -13,5 +13,6 @@ public class ClipDto {
     private String code;
     private String username;
     private LocalDateTime createdAt;
+    private boolean visible;
 
 }

@@ -11,14 +11,20 @@ export const wakeUpServer = async () => {
 };
 
 
-export const createClip = async (content, username = null) => {
-  const payload = { content, username };
+export const createClip = async (content, username = null , visible = false) => {
+  const payload = { content, username , visible };
   const response = await fetch(`${API_URL}/clips`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
   if (!response.ok) throw new Error("Failed to create clip");
+  return response.json();
+};
+
+export const getPublicClips = async () => {
+  const response = await fetch(`${API_URL}/clips/public`);
+  if (!response.ok) throw new Error("Failed to load community clips");
   return response.json();
 };
 

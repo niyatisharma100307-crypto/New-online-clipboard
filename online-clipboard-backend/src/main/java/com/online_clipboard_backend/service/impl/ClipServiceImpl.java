@@ -100,5 +100,11 @@ public class ClipServiceImpl implements ClipService {
         return modelMapper.map(newClip, ClipDto.class);
     }
 
+    @Override
+    public List<ClipDto> getPublicClip() {
+        List<Clip> clips =clipRepository.findByVisibleTrueOrderByCreatedAtDesc();
+        return clips.stream().map(clip -> {return modelMapper.map(clip , ClipDto.class);}).toList();
+    }
+
 
 }

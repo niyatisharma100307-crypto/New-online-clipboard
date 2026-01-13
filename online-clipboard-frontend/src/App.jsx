@@ -6,6 +6,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import { Toaster } from "sonner";
 import { wakeUpServer } from "./services/api";
+import Community from "./pages/Community";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -38,6 +39,7 @@ function App() {
               user ? <Dashboard user={user} /> : <Navigate to="/login" />
             }
           />
+          <Route path="/community" element={<Community />} />
         </Routes>
       </div>
     </BrowserRouter>

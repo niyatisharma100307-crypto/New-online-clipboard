@@ -38,8 +38,13 @@ public class ClipController {
     }
 
     @PutMapping("/{id}")
-    public ClipDto updateClip(@PathVariable Long id , @RequestBody ClipDto clipDto) {
-        return clipService.updateById(id , clipDto);
+    public ClipDto updateClip(@PathVariable Long id, @RequestBody ClipDto clipDto) {
+        return clipService.updateById(id, clipDto);
+    }
+
+    @GetMapping("/public")
+    public List<ClipDto> getPublicClip() {
+        return clipService.getPublicClip();
     }
 
 

@@ -6,6 +6,7 @@ import { createClip, getClipByCode } from "../services/api";
 import Features from "../components/Features";
 import JSZip from "jszip"; 
 import TerminalLoader from "../components/TerminalLoader";
+import { Globe, Check } from "lucide-react"; 
 
 
 const TerminalWindow = ({ title, children, color = "gray" }) => (
@@ -34,13 +35,14 @@ export default function Home({ user }) {
   const [retrievedClip, setRetrievedClip] = useState(null);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
+  const [visible, setVisible] = useState(false);
   
 
   const handleTextUpload = async () => {
     if (!textInput.trim()) return;
     setLoading(true);
     try {
-      const data = await createClip(textInput, user?.username);
+      const data = await createClip(textInput, user?.username , visible);
       setGeneratedCode(data.code);
       setTextInput("");
       toast.success("Clip saved successfully!");
@@ -196,6 +198,17 @@ export default function Home({ user }) {
             className="w-full flex-1 bg-[#111] border border-[#141416] text-gray-200 p-3 rounded focus:border-blue-500/50 outline-none resize-none text-sm placeholder-gray-600 mb-4"
             placeholder="Type or paste your content here..."
           />
+          <div 
+            onClick={() => setVisible(!visible)}
+            className="flex items-center gap-2 mb-4 cursor-pointer group"
+          >
+            <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${visible ? "bg-blue-500 border-blue-500" : "border-gray-600 bg-transparent group-hover:border-blue-400"}`}>
+              {visible && <Check className="w-3 h-3 text-white" />}
+            </div>
+            <span className={`text-xs ${visible ? "text-blue-400" : "text-gray-500 group-hover:text-gray-300"}`}>
+              Make Public (Visible on Community Feed)
+            </span>
+          </div>
           <button onClick={handleTextUpload} disabled={loading || !textInput} className="w-full bg-[#1A1A1A] hover:bg-[#222] border border-[#333] hover:border-white text-white py-3 rounded text-sm font-bold tracking-wide uppercase transition-all flex items-center justify-center gap-2 cursor-pointer">
             {loading ? "Saving..." : <> <Save className="w-4 h-4" /> Save Clip </>}
           </button>

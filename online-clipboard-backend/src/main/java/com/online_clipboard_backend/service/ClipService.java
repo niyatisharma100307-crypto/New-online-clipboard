@@ -15,4 +15,6 @@ public interface ClipService {
 
 
     ClipDto updateById(Long id, ClipDto clipDto);
+
+    List<ClipDto> getPublicClip();
 }

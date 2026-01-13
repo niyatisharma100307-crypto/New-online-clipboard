@@ -1,8 +1,10 @@
 package com.online_clipboard_backend.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -25,12 +27,12 @@ public class Clip {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @PrePersist
-    protected void onCreated() {
-        createdAt = LocalDateTime.now();
-    }
+    @Column(nullable = false)
+    private Boolean visible ;
+
 
 }

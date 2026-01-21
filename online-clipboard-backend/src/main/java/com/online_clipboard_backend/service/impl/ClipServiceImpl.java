@@ -143,6 +143,8 @@ public class ClipServiceImpl implements ClipService {
         return clips.stream().map(clip -> {
             ClipDto dto = modelMapper.map(clip, ClipDto.class);
             dto.setContent(decrypt(clip.getContent()));
+            if(clip.getUser() != null)
+                dto.setUsername(clip.getUser().getUsername());
             return dto;
         }).toList();
     }

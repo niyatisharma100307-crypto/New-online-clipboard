@@ -1,12 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import {
-  Terminal,
-  LogOut,
-  LayoutDashboard,
-  UserCircle,
-  Wifi,
-} from "lucide-react";
-import { Globe } from "lucide-react";
+import { Terminal, LogOut, LayoutDashboard, UserCircle, Globe } from "lucide-react";
 
 export default function Navbar({ user, setUser }) {
   const navigate = useNavigate();
@@ -19,18 +12,18 @@ export default function Navbar({ user, setUser }) {
 
   return (
     <nav className="border-b border-[#141416] bg-[#0A0A0A]/80 backdrop-blur-md sticky top-0 z-40 font-sans">
-      <div className="max-w-[1400px] mx-auto px-6 h-16 flex items-center justify-between">
+      {/* Responsive Padding: px-4 on mobile */}
+      <div className="max-w-[1400px] mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
+        
         {/* Logo Section */}
-        <Link to="/" className="flex items-center gap-3 group">
-          <div className="flex flex-col">
-            <span className="text-lg font-sans text-white leading-none">
+        <Link to="/" className="flex items-center gap-2 group">
+           <span className="text-lg font-sans text-white leading-none">
               Online Clipboard
             </span>
-          </div>
         </Link>
 
         {/* Actions Section */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4 md:gap-6">
           <Link
             to="/community"
             className="flex items-center gap-2 text-sm font-medium text-gray-400 hover:text-white transition-colors"
@@ -38,6 +31,7 @@ export default function Navbar({ user, setUser }) {
             <Globe className="w-4 h-4" />
             <span className="hidden sm:inline">Community</span>
           </Link>
+          
           {user ? (
             <>
               {/* Dashboard Link */}
@@ -50,30 +44,26 @@ export default function Navbar({ user, setUser }) {
               </Link>
 
               {/* User Profile / Status */}
-              <div className="flex items-center gap-4 pl-6 border-l border-[#141416]">
-                <div className="flex flex-col items-end">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm  text-white leading-none">
-                      {user.username}
-                    </span>
-                  </div>
-                </div>
+              <div className="flex items-center gap-3 pl-4 md:pl-6 border-l border-[#141416]">
+                <span className="text-sm text-white font-bold hidden md:block">
+                  {user.username}
+                </span>
 
                 <button
                   onClick={handleLogout}
                   className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
-                  title="Disconnect Session"
+                  title="Log Out"
                 >
-                  <LogOut className="w-4 h-4" />
+                  <LogOut className="w-5 h-5" />
                 </button>
               </div>
             </>
           ) : (
             <Link
               to="/login"
-              className="group flex items-center gap-2 text-sm font-medium text-gray-400 hover:text-white transition-colors"
+              className="group flex items-center gap-2 text-sm font-medium text-gray-400 hover:text-white transition-colors bg-[#1A1A1A] hover:bg-[#222] border border-[#333] px-3 py-1.5 rounded-full"
             >
-              <UserCircle className="w-4 h-4 text-gray-600 group-hover:text-blue-400 transition-colors" />
+              <UserCircle className="w-4 h-4 text-gray-500 group-hover:text-blue-400 transition-colors" />
               Sign In
             </Link>
           )}

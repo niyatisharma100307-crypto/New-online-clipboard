@@ -31,20 +31,16 @@ export default function Dashboard({ user }) {
     return content && content.startsWith("data:");
   };
 
-  // --- UPDATED DOWNLOAD FUNCTION ---
   const downloadFile = (content, filenameCode) => {
     const link = document.createElement("a");
     link.href = content;
     
-    // Auto-detect extension
     let extension = "bin";
-    if (content.startsWith("data:image/")) extension = "png"; // or jpg
+    if (content.startsWith("data:image/")) extension = "png";
     if (content.startsWith("data:application/pdf")) extension = "pdf";
-    // Detect Zip
     if (content.startsWith("data:application/zip") || content.includes(";base64,UEsDB")) extension = "zip";
     
     link.download = `clip-${filenameCode}.${extension}`;
-    
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -109,7 +105,8 @@ export default function Dashboard({ user }) {
   };
 
   return (
-    <div className="px-4 md:px-20 mx-auto py-12 font-sans">
+    // Responsive Padding: px-4 on mobile, px-20 on desktop
+    <div className="px-4 md:px-20 mx-auto py-8 md:py-12 font-sans">
       
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -123,6 +120,7 @@ export default function Dashboard({ user }) {
           </p>
         </div>
 
+        {/* Search Bar - Full width on mobile */}
         <div className="relative w-full md:w-64">
           <Search className="absolute left-3 top-2.5 text-gray-500 w-4 h-4" />
           <input 
@@ -138,12 +136,19 @@ export default function Dashboard({ user }) {
       {/* Table Container */}
       <div className="border border-[#141416] rounded-md overflow-hidden bg-[#0A0A0A] shadow-sm">
         
-        {/* Table Header */}
+        {/* Table Header - Responsive Grid */}
         <div className="grid grid-cols-12 border-b border-[#141416] bg-[#111] py-3 px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
-          <div className="col-span-2">Code</div>
-          <div className="col-span-6">Content Preview</div>
-          <div className="col-span-2">Created</div>
-          <div className="col-span-2 text-right">Actions</div>
+          {/* Mobile: 3 cols | Desktop: 2 cols */}
+          <div className="col-span-3 md:col-span-2">Code</div>
+          
+          {/* Mobile: 6 cols | Desktop: 6 cols */}
+          <div className="col-span-6 md:col-span-6">Content</div>
+          
+          {/* Mobile: Hidden | Desktop: 2 cols */}
+          <div className="hidden md:block md:col-span-2">Created</div>
+          
+          {/* Mobile: 3 cols | Desktop: 2 cols */}
+          <div className="col-span-3 md:col-span-2 text-right">Actions</div>
         </div>
 
         {loading && (
@@ -165,13 +170,15 @@ export default function Dashboard({ user }) {
               className="grid grid-cols-12 items-center py-3 px-4 hover:bg-[#161616] transition-colors group text-sm font-mono"
             >
               
-              <div className="col-span-2 flex items-center gap-2">
+              {/* CODE COLUMN */}
+              <div className="col-span-3 md:col-span-2 flex items-center gap-2">
                 <span className="text-white font-bold">
                   #{clip.code}
                 </span>
               </div>
 
-              <div className="col-span-6 pr-4">
+              {/* CONTENT COLUMN */}
+              <div className="col-span-6 md:col-span-6 pr-4">
                 {editingId === clip.id ? (
                   <input 
                     type="text" 
@@ -187,8 +194,8 @@ export default function Dashboard({ user }) {
                 ) : (
                   isBase64File(clip.content) ? (
                     <div className="flex items-center gap-2 text-blue-400">
-                      <FileText className="w-4 h-4" />
-                      <span className="italic">Binary File (Base64)</span>
+                      <FileText className="w-4 h-4 shrink-0" />
+                      <span className="italic truncate">File</span>
                     </div>
                   ) : (
                     <p className="text-gray-300 truncate opacity-80 group-hover:opacity-100 transition-opacity">
@@ -198,12 +205,14 @@ export default function Dashboard({ user }) {
                 )}
               </div>
 
-              <div className="col-span-2 flex items-center gap-2 text-xs text-gray-500">
+              {/* CREATED COLUMN (Hidden on Mobile) */}
+              <div className="hidden md:flex md:col-span-2 items-center gap-2 text-xs text-gray-500">
                 <Clock className="w-3 h-3" />
                 {formatDate(clip.createdAt)}
               </div>
 
-              <div className="col-span-2 flex justify-end gap-2">
+              {/* ACTIONS COLUMN */}
+              <div className="col-span-3 md:col-span-2 flex justify-end gap-1 md:gap-2">
                 {editingId === clip.id ? (
                   <>
                     <button onClick={() => saveEdit(clip.id)} disabled={actionLoading} className="p-1.5 text-green-500 hover:bg-green-500/10 rounded">
@@ -220,7 +229,7 @@ export default function Dashboard({ user }) {
                         <button
                           onClick={() => downloadFile(clip.content, `clip-${clip.code}`)}
                           className="p-1.5 text-purple-500 hover:text-white hover:bg-purple-500/20 rounded"
-                          title="Download File"
+                          title="Download"
                         >
                           <Download className="w-4 h-4" />
                         </button>

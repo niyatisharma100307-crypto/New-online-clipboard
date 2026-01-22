@@ -53,7 +53,6 @@ export default function Home({ user }) {
     }
   };
 
-  // --- UPDATED UPLOAD LOGIC ---
   const handleFileUpload = async (e) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -61,7 +60,6 @@ export default function Home({ user }) {
     // A. SINGLE FILE
     if (files.length === 1) {
       const file = files[0];
-      // Limit 10MB
       if (file.size > 10 * 1024 * 1024) {
         toast.error("File is too large (Max 10MB).");
         return;
@@ -72,7 +70,8 @@ export default function Home({ user }) {
         const content = event.target.result;
         setLoading(true);
         try {
-          const data = await createClip(content, user?.username);
+          // CHANGE THIS LINE: Pass 'visible' as the 3rd argument
+          const data = await createClip(content, user?.username, visible);
           setGeneratedCode(data.code);
           toast.success(`File "${file.name}" uploaded!`);
         } catch (err) {
@@ -91,7 +90,6 @@ export default function Home({ user }) {
     const zip = new JSZip();
     let totalSize = 0;
 
-    // Add files to zip
     Array.from(files).forEach((file) => {
       totalSize += file.size;
       zip.file(file.name, file);
@@ -103,15 +101,13 @@ export default function Home({ user }) {
     }
 
     try {
-      // Generate Zip Blob
       const contentBlob = await zip.generateAsync({ type: "blob" });
-      
-      // Convert to Base64
       const reader = new FileReader();
       reader.onload = async (event) => {
         try {
           const base64String = event.target.result;
-          const data = await createClip(base64String, user?.username);
+          // CHANGE THIS LINE: Pass 'visible' as the 3rd argument
+          const data = await createClip(base64String, user?.username, visible);
           setGeneratedCode(data.code);
           toast.success(`${files.length} files zipped & uploaded!`);
         } catch (err) {
@@ -122,13 +118,14 @@ export default function Home({ user }) {
         }
       };
       reader.readAsDataURL(contentBlob);
-
     } catch (err) {
       console.error(err);
       toast.error("Failed to zip files.");
       setLoading(false);
     }
   };
+
+
 
   const handleRetrieve = async (e) => {
     e.preventDefault();
@@ -227,6 +224,17 @@ export default function Home({ user }) {
               <FileUp className="w-10 h-10 text-gray-600 group-hover:text-purple-400 mb-3 transition-colors" />
               <span className="text-gray-500 text-xs font-bold uppercase tracking-wider group-hover:text-purple-300">Click to Select Files</span>
             </div>
+               <div 
+            onClick={() => setVisible(!visible)}
+            className="flex items-center gap-2 mt-4 cursor-pointer group"
+          >
+            <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${visible ? "bg-blue-500 border-blue-500" : "border-gray-600 bg-transparent group-hover:border-blue-400"}`}>
+              {visible && <Check className="w-3 h-3 text-white" />}
+            </div>
+            <span className={`text-xs ${visible ? "text-blue-400" : "text-gray-500 group-hover:text-gray-300"}`}>
+              Make Public (Visible on Community Feed)
+            </span>
+          </div>
           </div>
           <div className="mt-4 text-center text-[10px] text-gray-500">Supports: Single Files or Groups (Auto-Zip)</div>
         </TerminalWindow>

@@ -1,6 +1,5 @@
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
 
-
 export const wakeUpServer = async () => {
   try {
     await fetch(`${API_URL}/health-check`); 
@@ -9,7 +8,6 @@ export const wakeUpServer = async () => {
     console.log(err);
   }
 };
-
 
 export const createClip = async (content, username = null , visible = false) => {
   const payload = { content, username , visible };
@@ -22,8 +20,9 @@ export const createClip = async (content, username = null , visible = false) => 
   return response.json();
 };
 
-export const getPublicClips = async () => {
-  const response = await fetch(`${API_URL}/clips/public`);
+
+export const getPublicClips = async (page = 0, size = 10) => {
+  const response = await fetch(`${API_URL}/clips/public?page=${page}&size=${size}`);
   if (!response.ok) throw new Error("Failed to load community clips");
   return response.json();
 };
@@ -34,8 +33,9 @@ export const getClipByCode = async (code) => {
   return response.json();
 };
 
-export const getUserClips = async (username) => {
-  const response = await fetch(`${API_URL}/clips/user/${username}`);
+
+export const getUserClips = async (username, page = 0, size = 10) => {
+  const response = await fetch(`${API_URL}/clips/user/${username}?page=${page}&size=${size}`);
   if (!response.ok) throw new Error("Failed to fetch history");
   return response.json();
 };
@@ -52,7 +52,6 @@ export const authUser = async (username, password) => {
   }
   return response.json();
 };
-
 
 export const deleteClip = async (id) => {
   const response = await fetch(`${API_URL}/clips/${id}`, {

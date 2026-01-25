@@ -5,6 +5,9 @@ import com.online_clipboard_backend.dto.ClipDto;
 
 import com.online_clipboard_backend.service.ClipService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,8 +31,10 @@ public class ClipController {
     }
 
     @GetMapping("/user/{username}")
-    public List<ClipDto> getUserClips(@PathVariable String username) {
-        return clipService.getUserClips(username);
+    public List<ClipDto> getUserClips(@PathVariable String username , @RequestParam(defaultValue = "0") int page
+            ,@RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page , size , Sort.by(Sort.Direction.DESC, "CreatedAt"));
+        return clipService.getUserClips(username , pageable);
     }
 
     @DeleteMapping("/{id}")
@@ -43,8 +48,10 @@ public class ClipController {
     }
 
     @GetMapping("/public")
-    public List<ClipDto> getPublicClip() {
-        return clipService.getPublicClip();
+    public List<ClipDto> getPublicClip(@RequestParam(defaultValue = "0") int page,
+                                       @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return clipService.getPublicClip(pageable);
     }
 
 

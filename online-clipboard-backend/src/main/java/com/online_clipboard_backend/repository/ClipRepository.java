@@ -1,6 +1,7 @@
 package com.online_clipboard_backend.repository;
 
 import com.online_clipboard_backend.entity.Clip;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,10 +15,10 @@ public interface ClipRepository extends JpaRepository<Clip, Long> {
 
     Optional<Clip> findByCode(String code);
 
-    List<Clip> findAllByUser_Username(String username);
+    List<Clip> findAllByUser_Username(String username , Pageable pageable);
 
     void deleteByCreatedAtBefore(LocalDateTime expiryDate);
 
-    List<Clip> findByVisibleTrueOrderByCreatedAtDesc ();
+    List<Clip> findByVisibleTrueOrderByCreatedAtDesc (Pageable pageable);
 
 }

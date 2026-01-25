@@ -9,6 +9,7 @@ import com.online_clipboard_backend.service.ClipService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.Cipher;
@@ -103,9 +104,9 @@ public class ClipServiceImpl implements ClipService {
     }
 
     @Override
-    public List<ClipDto> getUserClips(String username) {
+    public List<ClipDto> getUserClips(String username , Pageable pageable) {
 
-        List<Clip> clips = clipRepository.findAllByUser_Username(username);
+        List<Clip> clips = clipRepository.findAllByUser_Username(username , pageable);
 
         return clips.stream().map(clip -> {
             ClipDto dto = modelMapper.map(clip, ClipDto.class);
@@ -138,8 +139,8 @@ public class ClipServiceImpl implements ClipService {
     }
 
     @Override
-    public List<ClipDto> getPublicClip() {
-        List<Clip> clips = clipRepository.findByVisibleTrueOrderByCreatedAtDesc();
+    public List<ClipDto> getPublicClip(Pageable pageable) {
+        List<Clip> clips = clipRepository.findByVisibleTrueOrderByCreatedAtDesc(pageable);
         return clips.stream().map(clip -> {
             ClipDto dto = modelMapper.map(clip, ClipDto.class);
             dto.setContent(decrypt(clip.getContent()));

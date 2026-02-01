@@ -7,9 +7,11 @@ import Dashboard from "./pages/Dashboard";
 import { Toaster } from "sonner";
 import { wakeUpServer } from "./services/api";
 import Community from "./pages/Community";
+import ServerWakingUp from "./components/ServerWakingUp"; 
 
 function App() {
   const [user, setUser] = useState(null);
+  const [serverReady, setServerReady] = useState(false);
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
@@ -17,8 +19,19 @@ function App() {
       setUser(JSON.parse(savedUser));
     }
 
-    wakeUpServer();
+    const initializeServer = async () => {
+      try {
+        await wakeUpServer(); 
+        setServerReady(true);
+      } catch (err) {
+        setServerReady(true);
+        console.log(err)
+      }
+    };
+
+    initializeServer();
   }, []);
+
 
   return (
     <BrowserRouter>
@@ -26,6 +39,9 @@ function App() {
 
       <div className="min-h-screen bg-black text-gray-200 font-sans selection:bg-purple-500 selection:text-white">
         <Navbar user={user} setUser={setUser} />
+
+        {/* Render the Status Widget here, passing the status */}
+        <ServerWakingUp isReady={serverReady} />
 
         <Routes>
           <Route path="/" element={<Home user={user} />} />

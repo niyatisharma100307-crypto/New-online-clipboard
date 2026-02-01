@@ -2,13 +2,17 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
 
 export const wakeUpServer = async () => {
   try {
-    await fetch(`${API_URL}/health-check`); 
-    console.log("Server poked to wake up!");
+    const response = await fetch(`${API_URL}/health-check`); 
+    if (response.ok) {
+        console.log("Server poked to wake up!");
+        return true;
+    }
   } catch (err) {
-    console.log(err);
+    console.log("Server might be sleeping or error:", err);
+   
+    throw err; 
   }
 };
-
 export const createClip = async (content, username = null , visible = false) => {
   const payload = { content, username , visible };
   const response = await fetch(`${API_URL}/clips`, {
@@ -70,3 +74,4 @@ export const updateClip = async (id, content) => {
   if (!response.ok) throw new Error("Failed to update clip");
   return response.json();
 };
+

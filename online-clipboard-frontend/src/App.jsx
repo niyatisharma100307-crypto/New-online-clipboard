@@ -8,6 +8,7 @@ import { Toaster } from "sonner";
 import { wakeUpServer } from "./services/api";
 import Community from "./pages/Community";
 import ServerWakingUp from "./components/ServerWakingUp"; 
+import Profile from "./pages/Profile"; 
 
 function App() {
   const [user, setUser] = useState(null);
@@ -56,6 +57,7 @@ function App() {
             }
           />
           <Route path="/community" element={<Community />} />
+          <Route path="/profile" element={user ? <Profile user={user} /> : <Navigate to="/login" />} />
         </Routes>
       </div>
     </BrowserRouter>

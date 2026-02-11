@@ -1,6 +1,7 @@
 package com.online_clipboard_backend.service.impl;
 
 import com.online_clipboard_backend.dto.UserDto;
+import com.online_clipboard_backend.dto.UserPasswordUpdate;
 import com.online_clipboard_backend.entity.User;
 import com.online_clipboard_backend.repository.UserRepository;
 import com.online_clipboard_backend.service.UserService;
@@ -42,4 +43,21 @@ public class UserServiceImpl implements UserService {
             }
         }
     }
+
+    @Override
+    public UserDto updatePassword(UserPasswordUpdate userDto) {
+        User user = userRepository.findByUsername(userDto.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (passwordEncoder.matches(userDto.getOldPassword(), user.getPassword())){
+            String newPassword = passwordEncoder.encode(userDto.getNewPassword());
+            user.setPassword(newPassword);
+           User updatedUser = userRepository.save(user);
+           return modelMapper.map(updatedUser , UserDto.class) ;
+        } else {
+            throw new RuntimeException("Password does not match");
+        }
+    }
+
+
 }

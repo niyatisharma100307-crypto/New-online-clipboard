@@ -2,6 +2,7 @@ package com.online_clipboard_backend.controller;
 
 
 import com.online_clipboard_backend.dto.UserDto;
+import com.online_clipboard_backend.dto.UserPasswordUpdate;
 import com.online_clipboard_backend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +20,11 @@ public class UserController {
     @PostMapping()
     public UserDto createUser(@RequestBody UserDto userDto) {
         return userService.createUser(userDto);
+    }
+
+    @PostMapping("/updatePassword")
+    public UserDto updatePassword(@RequestBody UserPasswordUpdate userDto){
+        return userService.updatePassword(userDto) ;
     }
 
 }

@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Terminal, LogOut, LayoutDashboard, UserCircle, Globe } from "lucide-react";
+import { Terminal, LogOut, LayoutDashboard, UserCircle, Globe, Settings, User2 } from "lucide-react";
 
 export default function Navbar({ user, setUser }) {
   const navigate = useNavigate();
@@ -42,13 +42,13 @@ export default function Navbar({ user, setUser }) {
                 <LayoutDashboard className="w-4 h-4" />
                 <span className="hidden sm:inline">History</span>
               </Link>
+               <Link to="/profile" className="flex items-center gap-2 text-sm font-medium text-gray-400 hover:text-white transition-colors">
+                <User2 className="w-4 h-4" />
+                <span className="hidden sm:inline">Profile</span>
+              </Link>
 
               {/* User Profile / Status */}
               <div className="flex items-center gap-3 pl-4 md:pl-6 border-l border-[#141416]">
-                <span className="text-sm text-white font-bold hidden md:block">
-                  {user.username}
-                </span>
-
                 <button
                   onClick={handleLogout}
                   className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all"

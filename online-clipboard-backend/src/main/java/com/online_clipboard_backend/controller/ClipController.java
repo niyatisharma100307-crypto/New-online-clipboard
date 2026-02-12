@@ -11,7 +11,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Random;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,10 +30,10 @@ public class ClipController {
     }
 
     @GetMapping("/user/{username}")
-    public List<ClipDto> getUserClips(@PathVariable String username , @RequestParam(defaultValue = "0") int page
-            ,@RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page , size , Sort.by(Sort.Direction.DESC, "CreatedAt"));
-        return clipService.getUserClips(username , pageable);
+    public List<ClipDto> getUserClips(@PathVariable String username, @RequestParam(defaultValue = "0") int page
+            , @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "CreatedAt"));
+        return clipService.getUserClips(username, pageable);
     }
 
     @DeleteMapping("/{id}")
@@ -52,6 +51,14 @@ public class ClipController {
                                        @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
         return clipService.getPublicClip(pageable);
+    }
+
+    @GetMapping("/public/{username}")
+    public List<ClipDto> getPublicUserClips(@PathVariable String username, @RequestParam(defaultValue = "0") int page
+            , @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        return clipService.getPublicUserClips(username, pageable);
     }
 
 

@@ -21,4 +21,6 @@ public interface ClipRepository extends JpaRepository<Clip, Long> {
 
     List<Clip> findByVisibleTrueOrderByCreatedAtDesc (Pageable pageable);
 
+    List<Clip> findAllByUser_UsernameAndVisibleTrue(String username, Pageable pageable);
+
 }

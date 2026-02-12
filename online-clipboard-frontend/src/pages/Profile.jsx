@@ -40,7 +40,7 @@ export default function Profile({ user }) {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-          <User className="w-6 h-6 text-blue-500" /> 
+          <User className="w-6 h-6 text-gray-400" /> 
           User Profile
         </h1>
         <p className="text-gray-500 text-sm mt-1">Manage your account security.</p>

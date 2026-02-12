@@ -104,9 +104,9 @@ public class ClipServiceImpl implements ClipService {
     }
 
     @Override
-    public List<ClipDto> getUserClips(String username , Pageable pageable) {
+    public List<ClipDto> getUserClips(String username, Pageable pageable) {
 
-        List<Clip> clips = clipRepository.findAllByUser_Username(username , pageable);
+        List<Clip> clips = clipRepository.findAllByUser_Username(username, pageable);
 
         return clips.stream().map(clip -> {
             ClipDto dto = modelMapper.map(clip, ClipDto.class);
@@ -135,7 +135,7 @@ public class ClipServiceImpl implements ClipService {
 
         ClipDto response = modelMapper.map(newClip, ClipDto.class);
         response.setContent(decrypt(newClip.getContent()));
-        return response ;
+        return response;
     }
 
     @Override
@@ -144,10 +144,27 @@ public class ClipServiceImpl implements ClipService {
         return clips.stream().map(clip -> {
             ClipDto dto = modelMapper.map(clip, ClipDto.class);
             dto.setContent(decrypt(clip.getContent()));
-            if(clip.getUser() != null)
+            if (clip.getUser() != null)
                 dto.setUsername(clip.getUser().getUsername());
             return dto;
         }).toList();
+    }
+
+    @Override
+    public List<ClipDto> getPublicUserClips(String username, Pageable pageable) {
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<Clip> clips = clipRepository.findAllByUser_UsernameAndVisibleTrue(username, pageable);
+
+        return clips.stream().map(clip -> {
+            ClipDto dto = modelMapper.map(clip, ClipDto.class);
+            dto.setContent((decrypt(clip.getContent())));
+            if (clip.getUser() != null) {
+                dto.setUsername(clip.getUser().getUsername());
+            }
+            return dto;
+        }).toList();
+
     }
 
 

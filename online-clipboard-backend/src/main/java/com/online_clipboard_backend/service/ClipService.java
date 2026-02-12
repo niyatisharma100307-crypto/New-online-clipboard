@@ -18,4 +18,6 @@ public interface ClipService {
     ClipDto updateById(Long id, ClipDto clipDto);
 
     List<ClipDto> getPublicClip(Pageable pageable);
+
+    List<ClipDto> getPublicUserClips(String username, Pageable pageable);
 }

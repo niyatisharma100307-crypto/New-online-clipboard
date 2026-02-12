@@ -88,3 +88,12 @@ export const updatePassword = async (username, oldPassword, newPassword) => {
   }
   return response.json();
 };
+
+export const getPublicUserClips = async (username, page = 0, size = 10) => {
+  const response = await fetch(`${API_URL}/clips/public/${username}?page=${page}&size=${size}`);
+  if (!response.ok) {
+    // If user not found or error, throw specific error
+    throw new Error("User not found or no public clips");
+  }
+  return response.json();
+};

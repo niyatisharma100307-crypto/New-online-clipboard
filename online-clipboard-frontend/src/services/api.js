@@ -75,3 +75,16 @@ export const updateClip = async (id, content) => {
   return response.json();
 };
 
+
+export const updatePassword = async (username, oldPassword, newPassword) => {
+  const response = await fetch(`${API_URL}/user/updatePassword`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, oldPassword, newPassword }),
+  });
+  
+  if (!response.ok) {
+    throw new Error("Failed to update password. Check your old password.");
+  }
+  return response.json();
+};

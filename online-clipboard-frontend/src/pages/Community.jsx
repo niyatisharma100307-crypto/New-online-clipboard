@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 // Import the new function here
 import { getPublicClips, getPublicUserClips } from "../services/api"; 
-import { Globe, Clock, Copy, Search, Terminal, FileText, Download, User, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Globe, Clock, Copy, Search, Terminal, FileText, Download, User, ChevronLeft, ChevronRight, X, Eye } from "lucide-react";
 import { toast } from "sonner";
+import { AnimatePresence, motion } from "framer-motion";
 
 export default function Community() {
   const [clips, setClips] = useState([]);
@@ -12,6 +13,7 @@ export default function Community() {
   
 
   const [page, setPage] = useState(0);
+  const [viewingClip, setViewingClip] = useState(null); 
   const pageSize = 10;
 
   useEffect(() => {
@@ -69,7 +71,22 @@ export default function Community() {
   };
   const formatDate = (dateString) => {
     if (!dateString) return "";
-    return new Date(dateString).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    
+    // Most servers send UTC but don't specify it. 
+    // We append 'Z' if missing to ensure it's parsed as UTC.
+    let dateToParse = dateString;
+    if (typeof dateString === 'string' && !dateString.includes('Z') && !dateString.includes('+')) {
+      dateToParse = dateString.replace(' ', 'T') + 'Z';
+    }
+
+    return new Date(dateToParse).toLocaleString('en-IN', { 
+      month: 'short', 
+      day: 'numeric', 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: true,
+      timeZone: 'Asia/Kolkata' 
+    });
   };
 
   return (
@@ -151,11 +168,21 @@ export default function Community() {
                 {isBase64File(clip.content) ? (
                   <div className="flex items-center gap-2 text-purple-400"><FileText className="w-4 h-4 shrink-0" /><span className="italic truncate">File</span></div>
                 ) : (
-                  <p className="text-gray-400 truncate group-hover:text-gray-200 transition-colors">{clip.content}</p>
+                  <p className="text-gray-400 group-hover:text-gray-200 transition-colors">
+                    {clip.content.length > 60 ? `${clip.content.substring(0, 60)}...` : clip.content}
+                  </p>
                 )}
               </div>
               <div className="hidden md:flex md:col-span-2 items-center gap-2 text-xs text-gray-600"><Clock className="w-3 h-3" />{formatDate(clip.createdAt)}</div>
-              <div className="col-span-3 md:col-span-1 flex justify-end">
+              <div className="col-span-3 md:col-span-1 flex justify-end gap-1">
+                {!isBase64File(clip.content) && (
+                  <button 
+                    onClick={() => setViewingClip(clip)} 
+                    className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors"
+                  >
+                    <Eye className="w-4 h-4" />
+                  </button>
+                )}
                 {isBase64File(clip.content) ? (
                     <button onClick={() => downloadFile(clip.content, clip.code)} className="p-2 text-purple-500 hover:bg-purple-500/10 rounded transition-colors"><Download className="w-4 h-4" /></button>
                 ) : (
@@ -187,6 +214,66 @@ export default function Community() {
           Next <ChevronRight className="w-4 h-4" />
         </button>
       </div>
+      {/* View Modal */}
+      <AnimatePresence>
+        {viewingClip && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setViewingClip(null)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            />
+            
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="relative w-full max-w-2xl bg-[#0A0A0A] border border-[#141416] rounded-lg shadow-2xl p-6 overflow-hidden"
+            >
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-[#141416]">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-blue-900/30 flex items-center justify-center border border-blue-500/20">
+                    <User className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <div>
+                    <h2 className="text-white font-bold">{viewingClip.username || "Anonymous"}</h2>
+                    <p className="text-blue-500 text-xs font-mono font-bold">#{viewingClip.code}</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setViewingClip(null)}
+                  className="p-2 text-gray-500 hover:text-white hover:bg-[#1A1A1A] rounded-full"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="max-h-[60vh] overflow-y-auto mb-6 bg-[#050505] rounded-md p-4 border border-[#111]">
+                <pre className="text-gray-300 text-sm font-mono whitespace-pre-wrap break-words">
+                  {viewingClip.content}
+                </pre>
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <button 
+                  onClick={() => setViewingClip(null)}
+                  className="px-4 py-2 text-sm text-gray-500 hover:text-white font-bold transition-colors"
+                >
+                  Close
+                </button>
+                <button 
+                  onClick={() => { copyToClipboard(viewingClip.content); setViewingClip(null); }}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded text-sm font-bold flex items-center gap-2 transition-all"
+                >
+                  <Copy className="w-4 h-4" /> Copy
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

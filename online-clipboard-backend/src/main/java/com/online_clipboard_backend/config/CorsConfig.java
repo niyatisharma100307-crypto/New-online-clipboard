@@ -16,7 +16,8 @@ public class CorsConfig {
                 registry.addMapping("/**")
                         .allowedOrigins(
                                 "http://localhost:5173",
-                                "https://online-clipboard-secure.vercel.app"
+                                "https://online-clipboard-secure.vercel.app",
+                                "https://www.onlineclipboard.tech"
                         )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")

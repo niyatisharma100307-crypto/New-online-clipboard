@@ -30,12 +30,20 @@ public class ClipServiceImpl implements ClipService {
     @Value("${app.secret-key}")
     private String secretKey;
 
+    private SecretKeySpec secretKeySpec;
+
+    private SecretKeySpec getSecretKeySpec() {
+        if (secretKeySpec == null) {
+            secretKeySpec = new SecretKeySpec(secretKey.getBytes(), "AES");
+        }
+        return secretKeySpec;
+    }
+
     private String encrypt(String content) {
         try {
             if (content == null) return null;
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-            SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(), "AES");
-            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
+            cipher.init(Cipher.ENCRYPT_MODE, getSecretKeySpec());
             return Base64.getEncoder().encodeToString(cipher.doFinal(content.getBytes()));
 
         } catch (Exception e) {
@@ -47,8 +55,7 @@ public class ClipServiceImpl implements ClipService {
         try {
             if (content == null) return null;
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-            SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(), "AES");
-            cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
+            cipher.init(Cipher.DECRYPT_MODE, getSecretKeySpec());
             return new String(cipher.doFinal(Base64.getDecoder().decode(content)));
 
         } catch (Exception e) {
@@ -164,7 +171,6 @@ public class ClipServiceImpl implements ClipService {
             }
             return dto;
         }).toList();
-
     }
 
 

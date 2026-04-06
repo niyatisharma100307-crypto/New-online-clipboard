@@ -10,6 +10,11 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
+@Table(name = "clip", indexes = {
+    @Index(name = "idx_clip_visible_created_at", columnList = "visible, createdAt DESC"),
+    @Index(name = "idx_clip_user_id", columnList = "user_id"),
+    @Index(name = "idx_clip_code", columnList = "code")
+})
 public class Clip {
 
 

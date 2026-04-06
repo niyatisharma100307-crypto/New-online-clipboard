@@ -32,7 +32,7 @@ public class ClipController {
     @GetMapping("/user/{username}")
     public List<ClipDto> getUserClips(@PathVariable String username, @RequestParam(defaultValue = "0") int page
             , @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "CreatedAt"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         return clipService.getUserClips(username, pageable);
     }
 
@@ -49,14 +49,14 @@ public class ClipController {
     @GetMapping("/public")
     public List<ClipDto> getPublicClip(@RequestParam(defaultValue = "0") int page,
                                        @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         return clipService.getPublicClip(pageable);
     }
 
     @GetMapping("/public/{username}")
     public List<ClipDto> getPublicUserClips(@PathVariable String username, @RequestParam(defaultValue = "0") int page
             , @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         return clipService.getPublicUserClips(username, pageable);
     }

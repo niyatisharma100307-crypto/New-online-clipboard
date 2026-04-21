@@ -19,6 +19,10 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
+
 @Service
 @RequiredArgsConstructor
 public class ClipServiceImpl implements ClipService {
@@ -64,6 +68,10 @@ public class ClipServiceImpl implements ClipService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "publicClips", allEntries = true),
+            @CacheEvict(value = "publicUserClips", allEntries = true)
+    })
     public ClipDto createClip(ClipDto clipDto) {
 
         String randomCode;
@@ -98,6 +106,7 @@ public class ClipServiceImpl implements ClipService {
     }
 
     @Override
+    @Cacheable(value = "clips", key = "#code")
     public ClipDto getClip(String code) {
         Clip clip = clipRepository.findByCode(code).orElseThrow(() -> new RuntimeException("Clip not found"));
 
@@ -124,6 +133,11 @@ public class ClipServiceImpl implements ClipService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "clips", key = "#result.code"), // Removes the specific clip by its code
+            @CacheEvict(value = "publicClips", allEntries = true),
+            @CacheEvict(value = "publicUserClips", allEntries = true)
+    })
     public ClipDto deleteById(Long id) {
         Clip clip = clipRepository.findById(id).orElseThrow(() -> new RuntimeException("Clip not found"));
         ClipDto deletedClip = modelMapper.map(clip, ClipDto.class);
@@ -134,6 +148,11 @@ public class ClipServiceImpl implements ClipService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "clips", key = "#result.code"),
+            @CacheEvict(value = "publicClips", allEntries = true),
+            @CacheEvict(value = "publicUserClips", allEntries = true)
+    })
     public ClipDto updateById(Long id, ClipDto clipDto) {
         Clip oldClip = clipRepository.findById(id).orElseThrow();
         oldClip.setContent(encrypt(clipDto.getContent()));
@@ -146,6 +165,7 @@ public class ClipServiceImpl implements ClipService {
     }
 
     @Override
+    @Cacheable(value = "publicClips", key = "#pageable.pageNumber + '-' + #pageable.pageSize")
     public List<ClipDto> getPublicClip(Pageable pageable) {
         List<Clip> clips = clipRepository.findByVisibleTrueOrderByCreatedAtDesc(pageable);
         return clips.stream().map(clip -> {
@@ -158,6 +178,7 @@ public class ClipServiceImpl implements ClipService {
     }
 
     @Override
+    @Cacheable(value = "publicUserClips", key = "#username + '-' + #pageable.pageNumber + '-' + #pageable.pageSize")
     public List<ClipDto> getPublicUserClips(String username, Pageable pageable) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
 

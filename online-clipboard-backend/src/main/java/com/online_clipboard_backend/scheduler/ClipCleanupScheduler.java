@@ -6,6 +6,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.cache.annotation.CacheEvict;
 
 import java.time.LocalDateTime;
 
@@ -17,6 +18,7 @@ public class ClipCleanupScheduler {
 
     @Scheduled(fixedRate = 3600000)
     @Transactional
+    @CacheEvict(value = {"clips", "publicClips", "publicUserClips"}, allEntries = true)
     public void deleteExpiredClips() {
         LocalDateTime cutoffTime = LocalDateTime.now().minusHours(24);
 

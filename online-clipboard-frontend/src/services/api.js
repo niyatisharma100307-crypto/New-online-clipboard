@@ -1,3 +1,5 @@
+import { toast } from "sonner";
+
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
 
 export const wakeUpServer = async () => {
@@ -27,6 +29,14 @@ export const createClip = async (content, username = null , visible = false) => 
 
 export const getPublicClips = async (page = 0, size = 10) => {
   const response = await fetch(`${API_URL}/clips/public?page=${page}&size=${size}`);
+
+  if (response.status === 429) {
+    const errorData = await response.json();
+    toast.error(errorData.message); 
+    throw new Error("Rate limit exceeded"); 
+  }
+
+
   if (!response.ok) throw new Error("Failed to load community clips");
   return response.json();
 };

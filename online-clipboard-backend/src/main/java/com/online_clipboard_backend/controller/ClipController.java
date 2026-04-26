@@ -2,22 +2,22 @@ package com.online_clipboard_backend.controller;
 
 
 import com.online_clipboard_backend.dto.ClipDto;
-
 import com.online_clipboard_backend.service.ClipService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/clips")
 public class ClipController {
     private final ClipService clipService;
-
 
     @PostMapping
     public ClipDto createClip(@RequestBody ClipDto clipDto) {
@@ -61,5 +61,20 @@ public class ClipController {
         return clipService.getPublicUserClips(username, pageable);
     }
 
-
+    @PostMapping("/sync")
+    public ResponseEntity<?> syncOfflineClips(@RequestBody List<ClipDto> clips) {
+        int settled = 0;
+        for (ClipDto clipDto : clips) {
+            try {
+                clipService.createClip(clipDto);
+                settled++;
+            } catch (Exception e) {
+                System.err.println("Failed to sync clip: " + e.getMessage());
+            }
+        }
+        return ResponseEntity.ok(Map.of(
+                "status", "SYNC_COMPLETE",
+                "settled", settled
+        ));
+    }
 }

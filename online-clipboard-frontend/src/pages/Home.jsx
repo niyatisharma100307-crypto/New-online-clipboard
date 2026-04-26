@@ -1,8 +1,9 @@
-import { useState, useRef } from "react";
+import { useState, useRef , useEffect} from "react";
 import { Copy, FileUp, Terminal, Save, Download, FileText } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { createClip, getClipByCode } from "../services/api";
+import { queueClip } from "../services/OfflineSync";
 import Features from "../components/Features";
 import JSZip from "jszip"; 
 import TerminalLoader from "../components/TerminalLoader";
@@ -47,7 +48,13 @@ export default function Home({ user }) {
       setTextInput("");
       toast.success("Clip saved successfully!");
     } catch (err) {
-      toast.error("Failed to save clip.");
+      const isNetworkError = !navigator.onLine || err.name === "TypeError" || err.message.toLowerCase().includes("fetch");
+      if (isNetworkError) {
+        await queueClip(textInput, user?.username, visible);
+        setTextInput("");
+      } else {
+        toast.error("Failed to save clip.");
+      }
     } finally {
       setLoading(false);
     }
@@ -75,7 +82,12 @@ export default function Home({ user }) {
           setGeneratedCode(data.code);
           toast.success(`File "${file.name}" uploaded!`);
         } catch (err) {
-          toast.error("Upload failed.");
+          const isNetworkError = !navigator.onLine || err.name === "TypeError" || err.message.toLowerCase().includes("fetch");
+          if (isNetworkError) {
+            await queueClip(content, user?.username, visible);
+          } else {
+            toast.error("Upload failed.");
+          }
         } finally {
           setLoading(false);
           if (fileInputRef.current) fileInputRef.current.value = "";
@@ -111,7 +123,12 @@ export default function Home({ user }) {
           setGeneratedCode(data.code);
           toast.success(`${files.length} files zipped & uploaded!`);
         } catch (err) {
-          toast.error("Upload failed.");
+          const isNetworkError = !navigator.onLine || err.name === "TypeError" || err.message.toLowerCase().includes("fetch");
+          if (isNetworkError) {
+            await queueClip(base64String, user?.username, visible);
+          } else {
+            toast.error("Upload failed.");
+          }
         } finally {
           setLoading(false);
           if (fileInputRef.current) fileInputRef.current.value = "";

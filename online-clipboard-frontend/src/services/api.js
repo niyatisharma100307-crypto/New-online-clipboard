@@ -107,3 +107,13 @@ export const getPublicUserClips = async (username, page = 0, size = 10) => {
   }
   return response.json();
 };
+
+export const syncOfflineClips = async (clips) => {
+  const response = await fetch(`${API_URL}/clips/sync`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(clips),
+  });
+  if (!response.ok) throw new Error("Sync failed");
+  return response.json();
+};

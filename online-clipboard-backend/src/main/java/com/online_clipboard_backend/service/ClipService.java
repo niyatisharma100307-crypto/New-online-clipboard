@@ -20,4 +20,5 @@ public interface ClipService {
     List<ClipDto> getPublicClip(Pageable pageable);
 
     List<ClipDto> getPublicUserClips(String username, Pageable pageable);
+
 }

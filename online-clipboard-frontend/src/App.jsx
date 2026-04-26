@@ -6,20 +6,19 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import { Toaster } from "sonner";
 import { wakeUpServer } from "./services/api";
+import "./services/OfflineSync"; // Initialize offline listeners
 import Community from "./pages/Community";
 import ServerWakingUp from "./components/ServerWakingUp"; 
 import Profile from "./pages/Profile"; 
 
 function App() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem("user");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
   const [serverReady, setServerReady] = useState(false);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-
     const initializeServer = async () => {
       try {
         await wakeUpServer(); 

@@ -57,13 +57,14 @@ public class ClipServiceImpl implements ClipService {
 
     private String decrypt(String content) {
         try {
-            if (content == null) return null;
+            if (content == null || content.isEmpty()) return content;
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
             cipher.init(Cipher.DECRYPT_MODE, getSecretKeySpec());
             return new String(cipher.doFinal(Base64.getDecoder().decode(content)));
 
         } catch (Exception e) {
-            throw new RuntimeException(e.toString());
+
+            return content;
         }
     }
 
@@ -73,14 +74,12 @@ public class ClipServiceImpl implements ClipService {
             @CacheEvict(value = "publicUserClips", allEntries = true)
     })
     public ClipDto createClip(ClipDto clipDto) {
-
         String randomCode;
         Random random = new Random();
 
         do {
             int number = random.nextInt(100000);
             randomCode = String.format("%05d", number);
-
         } while (clipRepository.findByCode(randomCode).isPresent());
 
         clipDto.setCode(randomCode);
@@ -88,17 +87,17 @@ public class ClipServiceImpl implements ClipService {
         Clip clip = modelMapper.map(clipDto, Clip.class);
         clip.setContent(encrypt(clip.getContent()));
 
-
         if (clipDto.getUsername() != null && !clipDto.getUsername().isEmpty()) {
-            User user = userRepository.findByUsername(clipDto.getUsername()).orElseThrow(() -> new RuntimeException("User not found"));
+            User user = userRepository.findByUsername(clipDto.getUsername())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
             clip.setUser(user);
         }
-
 
         Clip savedClip = clipRepository.save(clip);
 
         ClipDto responseDto = modelMapper.map(savedClip, ClipDto.class);
-        responseDto.setContent(decrypt(responseDto.getContent()));
+        responseDto.setContent(decrypt(savedClip.getContent()));
+
         if (savedClip.getUser() != null) {
             responseDto.setUsername(savedClip.getUser().getUsername());
         }

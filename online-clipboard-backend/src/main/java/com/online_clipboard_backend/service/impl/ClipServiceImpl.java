@@ -16,12 +16,15 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +33,7 @@ public class ClipServiceImpl implements ClipService {
     private final ClipRepository clipRepository;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final Cloudinary cloudinary;
 
     @Value("${app.secret-key}")
     private String secretKey;
@@ -85,6 +89,48 @@ public class ClipServiceImpl implements ClipService {
         clipDto.setCode(randomCode);
 
         Clip clip = modelMapper.map(clipDto, Clip.class);
+
+        String rawContent = clip.getContent();
+
+        if (rawContent != null && rawContent.startsWith("data:")) {
+            try {
+
+                String resourceType = "raw";
+                String ext = "";
+
+
+                if (rawContent.startsWith("data:image/")) {
+                    resourceType = "image";
+                    if (rawContent.contains("png")) ext = ".png";
+                    else if (rawContent.contains("jpeg") || rawContent.contains("jpg")) ext = ".jpg";
+                } else if (rawContent.contains("application/pdf")) {
+                    ext = ".pdf";
+                } else if (rawContent.contains("zip") || rawContent.contains("compressed")) {
+                    ext = ".zip";
+                }
+
+
+                Map<String, Object> params = ObjectUtils.asMap(
+                        "resource_type", resourceType
+                );
+
+                Map uploadResult = cloudinary.uploader().upload(rawContent, params);
+
+                String fileUrl = uploadResult.get("secure_url").toString();
+
+                String publicId = uploadResult.get("public_id").toString();
+
+                clip.setCloudinaryPublicId(publicId);
+                clip.setCloudinaryResourceType(resourceType);
+
+                clip.setContent("FILE_URL:" + ext + "|" + fileUrl);
+
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to upload file to Cloudinary: " + e.getMessage());
+            }
+        }
+
+
         clip.setContent(encrypt(clip.getContent()));
 
         if (clipDto.getUsername() != null && !clipDto.getUsername().isEmpty()) {
@@ -139,6 +185,19 @@ public class ClipServiceImpl implements ClipService {
     })
     public ClipDto deleteById(Long id) {
         Clip clip = clipRepository.findById(id).orElseThrow(() -> new RuntimeException("Clip not found"));
+
+
+        if (clip.getCloudinaryPublicId() != null) {
+            try {
+                cloudinary.uploader().destroy(
+                        clip.getCloudinaryPublicId(),
+                        ObjectUtils.asMap("resource_type", clip.getCloudinaryResourceType())
+                );
+            } catch (Exception e) {
+                System.err.println("Manual Cloudinary delete failed: " + e.getMessage());
+            }
+        }
+
         ClipDto deletedClip = modelMapper.map(clip, ClipDto.class);
         deletedClip.setContent(decrypt(clip.getContent()));
         clipRepository.deleteById(id);

@@ -19,5 +19,6 @@ public class ClipDto implements Serializable {
     private String username;
     private LocalDateTime createdAt;
     private boolean visible;
+    private String fileName;
 
 }

@@ -31,7 +31,7 @@ async function initDB() {
 /**
  * Queue a clip (Plaintext)
  */
-export async function queueClip(content, username, visible) {
+export async function queueClip(content, username, visible , fileName = null) {
   await initDB();
   const tx = db.transaction(STORE_NAME, "readwrite");
   const store = tx.objectStore(STORE_NAME);
@@ -41,6 +41,7 @@ export async function queueClip(content, username, visible) {
     username,
     visible,
     timestamp: new Date().toISOString(),
+    fileName
   };
 
   return new Promise((resolve, reject) => {
@@ -71,10 +72,11 @@ export async function syncPendingClips() {
 
   try {
     // Map items to match backend ClipDto fields exactly
-    const payload = allPending.map(({ content, username, visible }) => ({
+    const payload = allPending.map(({ content, username, visible, fileName }) => ({
       content,
       username,
-      visible
+      visible, 
+      fileName
     }));
 
     const result = await syncOfflineClips(payload);

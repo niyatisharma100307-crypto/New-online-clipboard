@@ -15,8 +15,8 @@ export const wakeUpServer = async () => {
     throw err; 
   }
 };
-export const createClip = async (content, username = null , visible = false) => {
-  const payload = { content, username , visible };
+export const createClip = async (content, username = null , visible = false , fileName = null) => {
+  const payload = { content, username, visible, fileName };
   const response = await fetch(`${API_URL}/clips`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

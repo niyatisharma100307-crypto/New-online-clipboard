@@ -59,16 +59,58 @@ export default function Community() {
 
 
   const copyToClipboard = (text) => { navigator.clipboard.writeText(text); toast.success("Copied to clipboard!"); };
-  const isBase64File = (content) => { return content && content.startsWith("data:"); };
-  const downloadFile = (content, filenameCode) => {
-    const link = document.createElement("a"); link.href = content;
-    let extension = "bin";
-    if (content.startsWith("data:image/")) extension = "png";
-    if (content.startsWith("data:application/pdf")) extension = "pdf";
-    if (content.startsWith("data:application/zip") || content.includes(";base64,UEsDB")) extension = "zip";
-    link.download = `community-clip-${filenameCode}.${extension}`;
-    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+  const isBase64File = (content) => {
+    return content && content.startsWith("FILE_URL:");
   };
+
+const downloadFile = async (content, code = "file") => {
+    let url = content.replace("FILE_URL:", "");
+    let ext = "";
+    
+    // 1. Extract the extension we saved in the backend
+    if (url.includes("|")) {
+        const parts = url.split("|");
+        ext = parts[0]; // e.g., ".pdf"
+        url = parts[1]; // e.g., "https://res.cloudinary..."
+    }
+
+    const loadingToast = toast.loading("Downloading file...");
+
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+
+      // Fallback for older files uploaded before this fix
+      if (!ext) {
+          const mimeType = blob.type.toLowerCase();
+          if (mimeType.includes("zip") || mimeType.includes("compressed")) ext = ".zip";
+          else if (mimeType.includes("pdf")) ext = ".pdf";
+          else if (mimeType.includes("png")) ext = ".png";
+          else if (mimeType.includes("jpeg") || mimeType.includes("jpg")) ext = ".jpg";
+      }
+
+      // 2. Force an invisible background download with the perfect filename
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = blobUrl;
+      a.download = `clip-${code}${ext}`; // Creates "clip-12345.pdf"
+      
+      document.body.appendChild(a);
+      a.click();
+      
+      window.URL.revokeObjectURL(blobUrl);
+      document.body.removeChild(a);
+      toast.success("Download complete!", { id: loadingToast });
+
+    } catch (error) {
+      console.error("Download error:", error);
+      toast.error("Download failed. Opening in new tab...", { id: loadingToast });
+      window.open(url, "_blank");
+    }
+  };
+
+
   const formatDate = (dateString) => {
     if (!dateString) return "";
     
@@ -166,7 +208,7 @@ export default function Community() {
               <div className="hidden md:block md:col-span-1"><span className="text-blue-500 font-bold">#{clip.code}</span></div>
               <div className="col-span-6 md:col-span-6 pr-4">
                 {isBase64File(clip.content) ? (
-                  <div className="flex items-center gap-2 text-purple-400"><FileText className="w-4 h-4 shrink-0" /><span className="italic truncate">File</span></div>
+                  <div className="flex items-center gap-2 text-purple-400"><FileText className="w-4 h-4 shrink-0" /><span className="italic truncate">{clip.fileName || "File"}</span></div>
                 ) : (
                   <p className="text-gray-400 group-hover:text-gray-200 transition-colors">
                     {clip.content.length > 60 ? `${clip.content.substring(0, 60)}...` : clip.content}

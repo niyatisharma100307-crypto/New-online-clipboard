@@ -78,13 +78,13 @@ export default function Home({ user }) {
         setLoading(true);
         try {
           // CHANGE THIS LINE: Pass 'visible' as the 3rd argument
-          const data = await createClip(content, user?.username, visible);
+          const data = await createClip(content, user?.username, visible , file.name);
           setGeneratedCode(data.code);
           toast.success(`File "${file.name}" uploaded!`);
         } catch (err) {
           const isNetworkError = !navigator.onLine || err.name === "TypeError" || err.message.toLowerCase().includes("fetch");
           if (isNetworkError) {
-            await queueClip(content, user?.username, visible);
+            await queueClip(content, user?.username, visible  , file.name);
           } else {
             toast.error("Upload failed.");
           }
@@ -119,13 +119,13 @@ export default function Home({ user }) {
         try {
           const base64String = event.target.result;
           // CHANGE THIS LINE: Pass 'visible' as the 3rd argument
-          const data = await createClip(base64String, user?.username, visible);
+          const data = await createClip(base64String, user?.username, visible , "Archive.zip");
           setGeneratedCode(data.code);
           toast.success(`${files.length} files zipped & uploaded!`);
         } catch (err) {
           const isNetworkError = !navigator.onLine || err.name === "TypeError" || err.message.toLowerCase().includes("fetch");
           if (isNetworkError) {
-            await queueClip(base64String, user?.username, visible);
+            await queueClip(base64String, user?.username, visible , "Archive.zip");
           } else {
             toast.error("Upload failed.");
           }
@@ -166,25 +166,57 @@ export default function Home({ user }) {
   };
 
   const isBase64File = (content) => {
-    return content && content.startsWith("data:");
+    return content && content.startsWith("FILE_URL:");
   };
 
-  // Improved Download Handler for Retrieve Box
-  const downloadFile = (content) => {
-    const link = document.createElement("a");
-    link.href = content;
+const downloadFile = async (content, code = "file") => {
+    let url = content.replace("FILE_URL:", "");
+    let ext = "";
     
-    // Auto-detect extension
-    let extension = "bin";
-    if (content.startsWith("data:image/")) extension = "png";
-    if (content.startsWith("data:application/pdf")) extension = "pdf";
-    if (content.startsWith("data:application/zip") || content.includes(";base64,UEsDB")) extension = "zip";
+    // 1. Extract the extension we saved in the backend
+    if (url.includes("|")) {
+        const parts = url.split("|");
+        ext = parts[0]; // e.g., ".pdf"
+        url = parts[1]; // e.g., "https://res.cloudinary..."
+    }
 
-    link.download = `downloaded-file.${extension}`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const loadingToast = toast.loading("Downloading file...");
+
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      a.download = customFileName || `clip-${code}${ext}`;
+
+      // Fallback for older files uploaded before this fix
+      if (!ext) {
+          const mimeType = blob.type.toLowerCase();
+          if (mimeType.includes("zip") || mimeType.includes("compressed")) ext = ".zip";
+          else if (mimeType.includes("pdf")) ext = ".pdf";
+          else if (mimeType.includes("png")) ext = ".png";
+          else if (mimeType.includes("jpeg") || mimeType.includes("jpg")) ext = ".jpg";
+      }
+
+      // 2. Force an invisible background download with the perfect filename
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = blobUrl;
+      a.download = `clip-${code}${ext}`; // Creates "clip-12345.pdf"
+      
+      document.body.appendChild(a);
+      a.click();
+      
+      window.URL.revokeObjectURL(blobUrl);
+      document.body.removeChild(a);
+      toast.success("Download complete!", { id: loadingToast });
+
+    } catch (error) {
+      console.error("Download error:", error);
+      toast.error("Download failed. Opening in new tab...", { id: loadingToast });
+      window.open(url, "_blank");
+    }
   };
+
 
   return (
     <div className="max-w-[1400px] mx-auto px-6 pt-12 pb-20 font-sans">
@@ -279,7 +311,7 @@ export default function Home({ user }) {
                    <div className="h-full flex flex-col items-center justify-center">
                      <p className="text-gray-400 text-xs mb-3 italic">Binary File Detected</p>
                      <button 
-                       onClick={() => downloadFile(retrievedClip.content)}
+                      onClick={() => downloadFile(retrievedClip.content, retrievedClip.code)}
                        className="bg-[#111] border border-[#333] hover:border-emerald-500 text-white px-4 py-2 rounded text-xs flex items-center gap-2 transition"
                      >
                        <Download className="w-4 h-4" /> Download File

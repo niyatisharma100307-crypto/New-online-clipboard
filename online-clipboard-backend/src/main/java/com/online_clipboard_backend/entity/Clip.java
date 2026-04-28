@@ -34,4 +34,13 @@ public class Clip {
 
     @Column(nullable = false)
     private Boolean visible;
+
+    @Column
+    private String fileName;
+
+    @Column(name = "cloudinary_public_id")
+    private String cloudinaryPublicId;
+
+    @Column(name = "cloudinary_resource_type")
+    private String cloudinaryResourceType;
 }

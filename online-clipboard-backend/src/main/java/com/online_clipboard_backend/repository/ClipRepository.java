@@ -28,4 +28,6 @@ public interface ClipRepository extends JpaRepository<Clip, Long> {
     @EntityGraph(attributePaths = {"user"})
     List<Clip> findAllByUser_UsernameAndVisibleTrue(String username, Pageable pageable);
 
+    List<Clip> findByCreatedAtBefore(LocalDateTime expiryDate);
+
 }

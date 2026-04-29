@@ -1,64 +1,103 @@
-# 🌐 Online Clipboard with Intelligent Offline Sync
+# 🌐 Online Clipboard
 
-A premium, modern web application designed for seamless text and file sharing across devices. This project features a robust **Offline-First** architecture that ensures your productivity is never interrupted by network instability.
+![GitHub stars](https://img.shields.io/github/stars/Shaurya01836/online-clipboard?style=social)
+![GitHub forks](https://img.shields.io/github/forks/Shaurya01836/online-clipboard?style=social)
+![GitHub issues](https://img.shields.io/github/issues/Shaurya01836/online-clipboard)
+![License](https://img.shields.io/github/license/Shaurya01836/online-clipboard)
 
-![Frontend Showcase](https://img.shields.io/badge/Frontend-React%20+%20Vite-blue)
-![Backend Showcase](https://img.shields.io/badge/Backend-Spring%20Boot%203-green)
-![Database Showcase](https://img.shields.io/badge/Database-PostgreSQL%20+%20Redis-red)
+A modern web application that lets you **store, access, and share clipboard text across devices**.
+Built with a **React frontend** and **Spring Boot backend**, it ensures your important snippets are always available—anytime, anywhere.
 
----
+## 📸 Flows
 
-## 🚀 Key Features
+### Workflow
+![Online Clipboard workflow](assets/workflow.svg)
 
-### 1. ⚡ Instant Sharing
-*   **Text Clips**: Paste any text and get a unique 5-digit code for instant retrieval on any other device.
-*   **File Uploads**: Support for single files and multiple files (automatically zipped into a `.zip` archive).
-*   **Public/Private Visibility**: Choose whether to make your clips discoverable in the "Community" tab or keep them private to your account.
-
-### 2. 📶 Intelligent Offline Sync (New!)
-The application is designed to handle "dead zones" gracefully:
-*   **Zero Data Loss**: If your network drops while saving or uploading, the app automatically stores your content in a local **IndexedDB** queue.
-*   **Background Sync**: Using the browser's `online` event listeners, the app detects when connectivity is restored and silently syncs all pending clips to the server.
-*   **Toast Notifications**: Real-time feedback via `sonner` informs you when items are queued offline and when they are successfully settled.
-
-### 3. 🛡️ Enterprise-Grade Security
-*   **At-Rest Encryption**: All clipboard content is encrypted on the server using **AES/ECB/PKCS5Padding** before being stored in the database.
-*   **Authenticated Access**: Private clips are protected by a secure authentication layer, accessible only via your dashboard.
-*   **Idempotency**: The sync engine is designed to be idempotent, preventing duplicate clips if a sync process is interrupted or retried.
-
-### 4. 🎨 Premium UI/UX
-*   **Cyberpunk Terminal Aesthetic**: A sleek, dark-mode interface with glassmorphism and smooth micro-animations using `framer-motion`.
-*   **Real-time Status**: A dynamic status widget monitors backend health and informs you if the server is waking up from sleep.
+### User Flow
+![Online Clipboard user flow](assets/user-flow.svg)
 
 ---
 
-## 🛠️ Technology Stack
+## 🚀 Features
 
-| Layer | Technologies |
-| :--- | :--- |
-| **Frontend** | React, Vite, Tailwind CSS (Vanilla CSS components), Framer Motion, Lucide Icons, Sonner |
-| **Backend** | Java 21, Spring Boot 4.0.1, Spring Data JPA, Spring Cache (Redis) |
-| **Storage** | PostgreSQL (Persistent), Redis (Cache/Idempotency), IndexedDB (Browser Local) |
-| **Cryptography** | JCE (Java Cryptography Extension) - AES-128 |
+* 🔗 Save and retrieve text clips using short shareable codes
+* 🔒 Public and private clipboard support
+* 📱 Access clips across multiple devices
+* 🧠 Offline sync for unsent clips
+* 📜 Personal history + community clips
+* ✏️ Update and delete saved clips
+* ⚡ Backend health check for smooth startup
 
 ---
 
-## 📦 Getting Started
+## 🛠️ Tech Stack
 
-### 1. Prerequisites
-*   Node.js 18+
-*   Java 21 (JDK)
-*   PostgreSQL & Redis
+**Frontend**
 
-### 2. Backend Setup
+* React + Vite
+* React Router
+* Framer Motion
+* Tailwind CSS
+
+**Backend**
+
+* Java 21
+* Spring Boot
+* Spring Security
+* Spring Data JPA
+
+**Database & Services**
+
+* PostgreSQL
+* Redis (caching & sync)
+* Cloudinary (asset handling)
+
+**Tooling**
+
+* Maven
+* ESLint
+
+---
+
+## 📦 Installation & Setup
+
+### 1️⃣ Clone the repository
+
 ```bash
-cd online-clipboard-backend
-# Update application.properties with your DB credentials
-mvn clean install
-mvn spring-boot:run
+git clone https://github.com/Shaurya01836/online-clipboard.git
+cd online-clipboard
 ```
 
-### 3. Frontend Setup
+---
+
+### 2️⃣ Backend Setup
+
+Set environment variables:
+
+```bash
+DB_URL=
+DB_USERNAME=
+DB_PASSWORD=
+REDIS_HOST=
+REDIS_PORT=
+REDIS_PASSWORD=
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+```
+
+Start backend:
+
+```bash
+cd online-clipboard-backend
+./mvnw clean install
+./mvnw spring-boot:run
+```
+
+---
+
+### 3️⃣ Frontend Setup
+
 ```bash
 cd online-clipboard-frontend
 npm install
@@ -67,14 +106,79 @@ npm run dev
 
 ---
 
-## 📸 How Offline Sync Works
-1.  **Save while Offline**: The app detects a `TypeError` or `fetch` failure.
-2.  **Local Storage**: Content is mapped to a JSON skeleton and stored in the browser's `OnlineClipboardOffline` IndexedDB.
-3.  **The "Online" Trigger**: Once `navigator.onLine` returns true, the `syncPendingClips` service kicks in.
-4.  **Auto-Settlement**: The server processes the bulk request, creates the clips, and returns a 5-digit code for each.
+### 4️⃣ Configure API (if needed)
+
+Create `.env` in frontend:
+
+```env
+VITE_API_URL=http://localhost:8080/api
+```
+
+---
+
+## ▶️ Usage
+
+1. Start backend server
+2. Start frontend
+3. Open browser (Vite URL)
+4. Create a clip → copy code → access anywhere
+
+---
+
+## 📁 Project Structure
+
+```
+online-clipboard/
+├── online-clipboard-backend/
+├── online-clipboard-frontend/
+└── README.md
+```
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions of all levels!
+
+### 🛠️ How to contribute:
+
+1. Fork the repo
+2. Create a new branch
+3. Make your changes
+4. Test locally
+5. Submit a Pull Request
+
+### 🟢 Good first contributions:
+
+* UI improvements
+* Fix small bugs
+* Improve documentation
+* Add test cases
+
+---
+
+## 📌 Roadmap
+
+* 🔄 Real-time sync across devices
+* 🔐 Authentication system
+* 🛡️ End-to-end encryption
+* 📡 Improved offline-first support
+* 🚀 CI/CD & deployment automation
+
+---
+
+## 🐛 Issues
+
+Found a bug or have an idea?
+
+👉 Open an issue with:
+
+* Steps to reproduce
+* Expected behavior
+* Screenshots (if possible)
 
 ---
 
 ## 📄 License
-This project is for educational and simulation purposes. Feel free to fork and enhance!
 
+This project is licensed under the **MIT License**.

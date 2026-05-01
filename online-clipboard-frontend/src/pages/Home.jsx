@@ -219,13 +219,13 @@ const downloadFile = async (content, code = "file") => {
 
 
   return (
-    <div className="max-w-[1400px] mx-auto px-6 pt-12 pb-20 font-sans">
-      <div className="mb-12 border-l-4 border-blue-400 pl-6 py-2">
-        <h1 className="text-3xl font-bold text-white tracking-tight mb-2 flex items-center gap-3">
+    <div className="max-w-[1400px] mx-auto px-4 md:px-6 pt-8 md:pt-12 pb-16 md:pb-20 font-sans">
+      <div className="mb-8 md:mb-12 border-l-4 border-blue-400 pl-4 md:pl-6 py-2">
+        <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight mb-2 flex items-center gap-2 md:gap-3">
           <Terminal className="w-8 h-8 text-blue-500" />
           Online Clipboard
         </h1>
-        <p className="text-gray-400 text-base max-w-2xl">
+        <p className="text-gray-400 text-sm md:text-base max-w-2xl">
           Easily move text and files between your devices. <br/>
           Paste on one device, get a code, and enter it on another.
         </p>
@@ -255,7 +255,7 @@ const downloadFile = async (content, code = "file") => {
               Make Public (Visible on Community Feed)
             </span>
           </div>
-          <button onClick={handleTextUpload} disabled={loading || !textInput} className="w-full bg-[#1A1A1A] hover:bg-[#222] border border-[#333] hover:border-white text-white py-3 rounded text-sm font-bold tracking-wide uppercase transition-all flex items-center justify-center gap-2 cursor-pointer">
+          <button onClick={handleTextUpload} disabled={loading || !textInput} className="w-full bg-[#1A1A1A] hover:bg-[#222] border border-[#333] hover:border-white text-white py-2.5 md:py-3 rounded text-sm font-bold tracking-wide uppercase transition-all flex items-center justify-center gap-2 cursor-pointer">
             {loading ? "Saving..." : <> <Save className="w-4 h-4" /> Save Clip </>}
           </button>
         </TerminalWindow>
@@ -296,7 +296,7 @@ const downloadFile = async (content, code = "file") => {
           <div className="flex gap-2 mb-4">
             <input type="text" value={retrieveCode} onChange={(e) => setRetrieveCode(e.target.value)} maxLength={5} placeholder="Ex: 12345" className="w-full bg-[#111] border border-[#141416] text-white p-3 rounded focus:border-emerald-500/50 outline-none text-lg text-center font-bold tracking-widest placeholder-gray-700" />
           </div>
-          <button onClick={handleRetrieve} disabled={loading || retrieveCode.length < 5} className="w-full bg-[#1A1A1A] hover:bg-[#222] border border-[#333] cursor-pointer hover:border-white text-white py-3 rounded text-sm font-bold tracking-wide uppercase transition-all flex items-center justify-center gap-2 mb-4">
+          <button onClick={handleRetrieve} disabled={loading || retrieveCode.length < 5} className="w-full bg-[#1A1A1A] hover:bg-[#222] border border-[#333] cursor-pointer hover:border-white text-white py-2.5 md:py-3 rounded text-sm font-bold tracking-wide uppercase transition-all flex items-center justify-center gap-2 mb-4">
             {loading ? "Searching..." : <> <Download className="w-4 h-4" /> Get Content </>}
           </button>
 

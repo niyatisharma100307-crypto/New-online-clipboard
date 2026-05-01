@@ -174,12 +174,12 @@ const downloadFile = async (content, code = "file") => {
 
       {/* Table Container */}
       <div className="border border-[#141416] rounded-md overflow-hidden bg-[#0A0A0A] shadow-sm mb-6">
-        <div className="grid grid-cols-12 border-b border-[#141416] bg-[#111] py-3 px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
-          <div className="col-span-3 md:col-span-2">User</div>
-          <div className="hidden md:block md:col-span-1">Code</div>
-          <div className="col-span-6 md:col-span-6">Content</div>
-          <div className="hidden md:block md:col-span-2">Created</div>
-          <div className="col-span-3 md:col-span-1 text-right">Action</div>
+        <div className="hidden md:grid grid-cols-12 border-b border-[#141416] bg-[#111] py-3 px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
+          <div className="col-span-2">User</div>
+          <div className="col-span-1">Code</div>
+          <div className="col-span-6">Content</div>
+          <div className="col-span-2">Created</div>
+          <div className="col-span-1 text-right">Action</div>
         </div>
 
         {loading && <div className="p-8 text-center text-gray-500 text-sm font-mono animate-pulse">Loading feed...</div>}
@@ -200,13 +200,19 @@ const downloadFile = async (content, code = "file") => {
 
         <div className="divide-y divide-gray-800/50">
           {clips.map((clip) => (
-            <div key={clip.id} className="grid grid-cols-12 items-center py-3 px-4 hover:bg-[#161616] transition-colors group text-sm font-mono">
-              <div className="col-span-3 md:col-span-2 flex items-center gap-2 overflow-hidden">
-                <div className="w-6 h-6 rounded-full bg-blue-900/30 flex items-center justify-center border border-blue-500/20 shrink-0"><User className="w-3 h-3 text-blue-400" /></div>
-                <span className="text-gray-300 truncate font-bold text-xs">{clip.username || "Anonymous"}</span>
+            <div key={clip.id} className="flex flex-col md:grid md:grid-cols-12 gap-3 md:gap-0 md:items-center py-4 px-4 hover:bg-[#161616] transition-colors group text-sm font-mono">
+              <div className="md:col-span-2 flex items-center justify-between w-full md:w-auto">
+                <div className="flex items-center gap-2 overflow-hidden">
+                  <div className="w-6 h-6 rounded-full bg-blue-900/30 flex items-center justify-center border border-blue-500/20 shrink-0"><User className="w-3 h-3 text-blue-400" /></div>
+                  <span className="text-gray-300 truncate font-bold text-base md:text-xs">{clip.username || "Anonymous"}</span>
+                </div>
+                <div className="flex md:hidden items-center gap-3">
+                  <span className="text-blue-500 font-bold text-xs">#{clip.code}</span>
+                  <div className="flex items-center gap-1 text-xs text-gray-500"><Clock className="w-3 h-3" />{formatDate(clip.createdAt)}</div>
+                </div>
               </div>
               <div className="hidden md:block md:col-span-1"><span className="text-blue-500 font-bold">#{clip.code}</span></div>
-              <div className="col-span-6 md:col-span-6 pr-4">
+              <div className="md:col-span-6 pr-0 md:pr-4">
                 {isBase64File(clip.content) ? (
                   <div className="flex items-center gap-2 text-purple-400"><FileText className="w-4 h-4 shrink-0" /><span className="italic truncate">{clip.fileName || "File"}</span></div>
                 ) : (
@@ -216,7 +222,7 @@ const downloadFile = async (content, code = "file") => {
                 )}
               </div>
               <div className="hidden md:flex md:col-span-2 items-center gap-2 text-xs text-gray-600"><Clock className="w-3 h-3" />{formatDate(clip.createdAt)}</div>
-              <div className="col-span-3 md:col-span-1 flex justify-end gap-1">
+              <div className="md:col-span-1 flex justify-start md:justify-end flex-wrap gap-2 mt-2 md:mt-0 pt-3 md:pt-0 border-t border-[#141416] md:border-t-0">
                 {!isBase64File(clip.content) && (
                   <button 
                     onClick={() => setViewingClip(clip)} 

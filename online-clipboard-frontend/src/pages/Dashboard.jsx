@@ -183,11 +183,11 @@ const downloadFile = async (content, code = "file") => {
 
       {/* Table Container */}
       <div className="border border-[#141416] rounded-md overflow-hidden bg-[#0A0A0A] shadow-sm mb-6">
-        <div className="grid grid-cols-12 border-b border-[#141416] bg-[#111] py-3 px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
-          <div className="col-span-3 md:col-span-2">Code</div>
-          <div className="col-span-6 md:col-span-6">Content</div>
-          <div className="hidden md:block md:col-span-2">Created</div>
-          <div className="col-span-3 md:col-span-2 text-right">Actions</div>
+        <div className="hidden md:grid grid-cols-12 border-b border-[#141416] bg-[#111] py-3 px-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
+          <div className="col-span-2">Code</div>
+          <div className="col-span-6">Content</div>
+          <div className="col-span-2">Created</div>
+          <div className="col-span-2 text-right">Actions</div>
         </div>
 
         {loading && <div className="p-8 text-center text-gray-500 text-sm font-mono animate-pulse">Loading streams...</div>}
@@ -195,11 +195,16 @@ const downloadFile = async (content, code = "file") => {
 
         <div className="divide-y divide-gray-800/50">
           {filteredClips.map((clip) => (
-            <div key={clip.id} className="grid grid-cols-12 items-center py-3 px-4 hover:bg-[#161616] transition-colors group text-sm font-mono">
-              {/* Code */}
-              <div className="col-span-3 md:col-span-2 flex items-center gap-2"><span className="text-white font-bold">#{clip.code}</span></div>
+            <div key={clip.id} className="flex flex-col md:grid md:grid-cols-12 gap-3 md:gap-0 md:items-center py-4 px-4 hover:bg-[#161616] transition-colors group text-sm font-mono">
+              {/* Code & Mobile Date */}
+              <div className="md:col-span-2 flex items-center justify-between w-full md:w-auto">
+                <span className="text-white font-bold text-base md:text-sm">#{clip.code}</span>
+                <div className="flex md:hidden items-center gap-1 text-xs text-gray-500">
+                  <Clock className="w-3 h-3" />{formatDate(clip.createdAt)}
+                </div>
+              </div>
               {/* Content */}
-              <div className="col-span-6 md:col-span-6 pr-4">
+              <div className="md:col-span-6 pr-0 md:pr-4">
                 {editingId === clip.id ? (
                   <input type="text" value={editContent} onChange={(e) => setEditContent(e.target.value)} autoFocus className="w-full bg-[#111] border border-blue-500/50 text-white px-2 py-1 rounded outline-none" onKeyDown={(e) => { if (e.key === 'Enter') saveEdit(clip.id); if (e.key === 'Escape') cancelEdit(); }} />
                 ) : (
@@ -212,17 +217,17 @@ const downloadFile = async (content, code = "file") => {
                   )
                 )}
               </div>
-              {/* Created */}
+              {/* Created Desktop */}
               <div className="hidden md:flex md:col-span-2 items-center gap-2 text-xs text-gray-500"><Clock className="w-3 h-3" />{formatDate(clip.createdAt)}</div>
               {/* Actions */}
-              <div className="col-span-3 md:col-span-2 flex justify-end gap-1 md:gap-2">
+              <div className="md:col-span-2 flex justify-start md:justify-end flex-wrap gap-2 mt-2 md:mt-0 pt-3 md:pt-0 border-t border-[#141416] md:border-t-0">
                 {editingId === clip.id ? (
                   <>
                     <button onClick={() => saveEdit(clip.id)} disabled={actionLoading} className="p-1.5 text-green-500 hover:bg-green-500/10 rounded">{actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}</button>
                     <button onClick={cancelEdit} disabled={actionLoading} className="p-1.5 text-gray-500 hover:bg-gray-800 rounded"><X className="w-4 h-4" /></button>
                   </>
                 ) : (
-                  <div className="flex gap-1">
+                  <div className="flex flex-wrap justify-end gap-1">
                     {!isBase64File(clip.content) && (
                       <button
                         onClick={() => setViewingClip(clip)}

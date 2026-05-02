@@ -24,7 +24,7 @@ export default function Dashboard({ user }) {
       // Pass page and pageSize to API
       getUserClips(user.username, page, pageSize)
         .then((data) => {
-          // Note: Backend might return oldest first. 
+          // Note: Backend might return oldest first.
           // If you want consistent sorting on the current page:
           setClips(data.sort((a, b) => b.id - a.id));
         })
@@ -190,10 +190,58 @@ const downloadFile = async (content, code = "file") => {
           <div className="col-span-2 text-right">Actions</div>
         </div>
 
-        {loading && <div className="p-8 text-center text-gray-500 text-sm font-mono animate-pulse">Loading streams...</div>}
+        {loading && (
+          <div className="divide-y divide-gray-800/50 animate-pulse">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="hidden md:grid grid-cols-12 items-center py-4 px-4 gap-4">
+                {/* Code */}
+                <div className="col-span-2">
+                  <div className="h-3.5 w-16 bg-[#1E1E1E] rounded" />
+                </div>
+                {/* Content */}
+                <div className="col-span-6 pr-4 flex flex-col gap-2">
+                  <div className="h-3 bg-[#1E1E1E] rounded w-3/4" />
+                  <div className="h-3 bg-[#1A1A1A] rounded w-1/2" />
+                </div>
+                {/* Created */}
+                <div className="col-span-2">
+                  <div className="h-3 w-20 bg-[#1E1E1E] rounded" />
+                </div>
+                {/* Actions */}
+                <div className="col-span-2 flex justify-end gap-2">
+                  <div className="h-7 w-7 bg-[#1E1E1E] rounded" />
+                  <div className="h-7 w-7 bg-[#1E1E1E] rounded" />
+                  <div className="h-7 w-7 bg-[#1E1E1E] rounded" />
+                </div>
+              </div>
+            ))}
+            {/* Mobile skeletons */}
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={`m-${i}`} className="flex md:hidden flex-col gap-3 py-4 px-4">
+                <div className="flex justify-between">
+                  <div className="h-4 w-16 bg-[#1E1E1E] rounded" />
+                  <div className="h-3 w-24 bg-[#1A1A1A] rounded" />
+                </div>
+                <div className="h-3 bg-[#1E1E1E] rounded w-full" />
+                <div className="h-3 bg-[#1A1A1A] rounded w-2/3" />
+                <div className="flex gap-2 pt-2 border-t border-[#141416]">
+                  <div className="h-7 w-7 bg-[#1E1E1E] rounded" />
+                  <div className="h-7 w-7 bg-[#1E1E1E] rounded" />
+                  <div className="h-7 w-7 bg-[#1E1E1E] rounded" />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
         {!loading && filteredClips.length === 0 && <div className="p-12 text-center"><p className="text-gray-500 text-sm">No clips found on this page.</p></div>}
 
-        <div className="divide-y divide-gray-800/50">
+        {!loading && (
+        <motion.div
+          className="divide-y divide-gray-800/50"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
           {filteredClips.map((clip) => (
             <div key={clip.id} className="flex flex-col md:grid md:grid-cols-12 gap-3 md:gap-0 md:items-center py-4 px-4 hover:bg-[#161616] transition-colors group text-sm font-mono">
               {/* Code & Mobile Date */}
@@ -248,7 +296,8 @@ const downloadFile = async (content, code = "file") => {
               </div>
             </div>
           ))}
-        </div>
+        </motion.div>
+        )}
       </div>
 
       {/* Pagination Controls */}

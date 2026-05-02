@@ -18,7 +18,7 @@ export default function Community() {
 
   useEffect(() => {
     loadCommunity();
-  }, [page, activeSearch]); 
+  }, [page, activeSearch]);
 
   const loadCommunity = async () => {
     setLoading(true);
@@ -182,7 +182,54 @@ const downloadFile = async (content, code = "file") => {
           <div className="col-span-1 text-right">Action</div>
         </div>
 
-        {loading && <div className="p-8 text-center text-gray-500 text-sm font-mono animate-pulse">Loading feed...</div>}
+        {loading && (
+          <div className="divide-y divide-gray-800/50 animate-pulse">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="hidden md:grid grid-cols-12 items-center py-4 px-4 gap-4">
+                {/* User */}
+                <div className="col-span-2 flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-[#1E1E1E] shrink-0" />
+                  <div className="h-3 w-20 bg-[#1E1E1E] rounded" />
+                </div>
+                {/* Code */}
+                <div className="col-span-1">
+                  <div className="h-3 w-10 bg-[#1E1E1E] rounded" />
+                </div>
+                {/* Content */}
+                <div className="col-span-6 pr-4 flex flex-col gap-2">
+                  <div className="h-3 bg-[#1E1E1E] rounded w-3/4" />
+                  <div className="h-3 bg-[#1A1A1A] rounded w-1/2" />
+                </div>
+                {/* Created */}
+                <div className="col-span-2">
+                  <div className="h-3 w-20 bg-[#1E1E1E] rounded" />
+                </div>
+                {/* Action */}
+                <div className="col-span-1 flex justify-end">
+                  <div className="h-7 w-7 bg-[#1E1E1E] rounded" />
+                </div>
+              </div>
+            ))}
+            {/* Mobile skeletons */}
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={`m-${i}`} className="flex md:hidden flex-col gap-3 py-4 px-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-[#1E1E1E] shrink-0" />
+                  <div className="h-3 w-24 bg-[#1E1E1E] rounded" />
+                </div>
+                <div className="h-3 bg-[#1E1E1E] rounded w-full" />
+                <div className="h-3 bg-[#1A1A1A] rounded w-2/3" />
+                <div className="flex justify-between pt-2 border-t border-[#141416]">
+                  <div className="flex gap-2">
+                    <div className="h-3 w-12 bg-[#1E1E1E] rounded" />
+                    <div className="h-3 w-20 bg-[#1A1A1A] rounded" />
+                  </div>
+                  <div className="h-7 w-7 bg-[#1E1E1E] rounded" />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
         
         {!loading && clips.length === 0 && (
           <div className="p-12 text-center border-t border-[#141416]">
@@ -198,7 +245,13 @@ const downloadFile = async (content, code = "file") => {
           </div>
         )}
 
-        <div className="divide-y divide-gray-800/50">
+        {!loading && (
+        <motion.div
+          className="divide-y divide-gray-800/50"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
           {clips.map((clip) => (
             <div key={clip.id} className="flex flex-col md:grid md:grid-cols-12 gap-3 md:gap-0 md:items-center py-4 px-4 hover:bg-[#161616] transition-colors group text-sm font-mono items-start md:items-center">
               <div className="md:col-span-2 flex items-center w-full md:w-auto">
@@ -240,10 +293,11 @@ const downloadFile = async (content, code = "file") => {
               </div>
             </div>
           ))}
-        </div>
+        </motion.div>
+        )}
       </div>
 
-     
+
       <div className="flex items-center justify-between border-t border-[#141416] pt-4">
         <button 
           onClick={() => setPage(p => Math.max(0, p - 1))}

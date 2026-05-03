@@ -27,6 +27,7 @@ Built with a **React frontend** and **Spring Boot backend**, it ensures your imp
 * 📜 Personal history + community clips
 * ✏️ Update and delete saved clips
 * ⚡ Backend health check for smooth startup
+* 💀 Skeleton loaders for improved perceived performance during data fetching
 
 ---
 

@@ -1,30 +1,34 @@
 package com.online_clipboard_backend.service.impl;
 
-import com.online_clipboard_backend.dto.ClipDto;
-import com.online_clipboard_backend.entity.Clip;
-import com.online_clipboard_backend.entity.User;
-import com.online_clipboard_backend.repository.ClipRepository;
-import com.online_clipboard_backend.repository.UserRepository;
-import com.online_clipboard_backend.service.ClipService;
-import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-import org.springframework.cache.annotation.Cacheable;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.online_clipboard_backend.dto.ClipDto;
+import com.online_clipboard_backend.entity.Clip;
+import com.online_clipboard_backend.entity.User;
+import com.online_clipboard_backend.repository.ClipRepository;
+import com.online_clipboard_backend.repository.UserRepository;
+import com.online_clipboard_backend.service.ClipService;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -54,7 +58,7 @@ public class ClipServiceImpl implements ClipService {
             cipher.init(Cipher.ENCRYPT_MODE, getSecretKeySpec());
             return Base64.getEncoder().encodeToString(cipher.doFinal(content.getBytes()));
 
-        } catch (Exception e) {
+        } catch (GeneralSecurityException e) {
             throw new RuntimeException(e.toString());
         }
     }
@@ -66,7 +70,7 @@ public class ClipServiceImpl implements ClipService {
             cipher.init(Cipher.DECRYPT_MODE, getSecretKeySpec());
             return new String(cipher.doFinal(Base64.getDecoder().decode(content)));
 
-        } catch (Exception e) {
+        } catch (GeneralSecurityException e) {
 
             return content;
         }
@@ -125,7 +129,7 @@ public class ClipServiceImpl implements ClipService {
 
                 clip.setContent("FILE_URL:" + ext + "|" + fileUrl);
 
-            } catch (Exception e) {
+            } catch (IOException e) {
                 throw new RuntimeException("Failed to upload file to Cloudinary: " + e.getMessage());
             }
         }
@@ -146,6 +150,7 @@ public class ClipServiceImpl implements ClipService {
 
         if (savedClip.getUser() != null) {
             responseDto.setUsername(savedClip.getUser().getUsername());
+            responseDto.setAvatarUrl(savedClip.getUser().getAvatarUrl());
         }
         return responseDto;
     }
@@ -160,6 +165,7 @@ public class ClipServiceImpl implements ClipService {
 
         if (clip.getUser() != null) {
             responseDto.setUsername(clip.getUser().getUsername());
+            responseDto.setAvatarUrl(clip.getUser().getAvatarUrl());
         }
         return responseDto;
     }
@@ -173,6 +179,9 @@ public class ClipServiceImpl implements ClipService {
             ClipDto dto = modelMapper.map(clip, ClipDto.class);
             dto.setContent(decrypt(clip.getContent()));
             dto.setUsername(username);
+            if (clip.getUser() != null) {
+                dto.setAvatarUrl(clip.getUser().getAvatarUrl());
+            }
             return dto;
         }).collect(Collectors.toList());
     }
@@ -193,7 +202,7 @@ public class ClipServiceImpl implements ClipService {
                         clip.getCloudinaryPublicId(),
                         ObjectUtils.asMap("resource_type", clip.getCloudinaryResourceType())
                 );
-            } catch (Exception e) {
+            } catch (IOException e) {
                 System.err.println("Manual Cloudinary delete failed: " + e.getMessage());
             }
         }
@@ -231,6 +240,8 @@ public class ClipServiceImpl implements ClipService {
             dto.setContent(decrypt(clip.getContent()));
             if (clip.getUser() != null)
                 dto.setUsername(clip.getUser().getUsername());
+            if (clip.getUser() != null)
+                dto.setAvatarUrl(clip.getUser().getAvatarUrl());
             return dto;
         }).toList();
     }
@@ -238,7 +249,7 @@ public class ClipServiceImpl implements ClipService {
     @Override
     @Cacheable(value = "publicUserClips", key = "#username + '-' + #pageable.pageNumber + '-' + #pageable.pageSize")
     public List<ClipDto> getPublicUserClips(String username, Pageable pageable) {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+        userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
 
         List<Clip> clips = clipRepository.findAllByUser_UsernameAndVisibleTrue(username, pageable);
 
@@ -247,6 +258,7 @@ public class ClipServiceImpl implements ClipService {
             dto.setContent((decrypt(clip.getContent())));
             if (clip.getUser() != null) {
                 dto.setUsername(clip.getUser().getUsername());
+                dto.setAvatarUrl(clip.getUser().getAvatarUrl());
             }
             return dto;
         }).toList();

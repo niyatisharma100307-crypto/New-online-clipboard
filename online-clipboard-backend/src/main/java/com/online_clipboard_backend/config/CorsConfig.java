@@ -19,7 +19,7 @@ public class CorsConfig {
                                 "https://online-clipboard-secure.vercel.app",
                                 "https://www.onlineclipboard.tech"
                         )
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                    .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);
             }

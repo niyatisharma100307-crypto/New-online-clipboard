@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
-import { getUserClips, deleteClip, updateClip } from "../services/api";
-import { Copy, Terminal, Search, Trash2, Edit2, Save, X, Loader2, Clock, Download, FileText, ChevronLeft, ChevronRight, Eye } from "lucide-react";
+import { getUserClips, deleteClip, updateClip, updateUsername } from "../services/api";
+import { Copy, Terminal, Search, Trash2, Edit2, Save, X, Loader2, Clock, Download, FileText, ChevronLeft, ChevronRight, Eye, Mail, User, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { AnimatePresence, motion } from "framer-motion";
 
-export default function Dashboard({ user }) {
+export default function Dashboard({ user, setUser }) {
   const [clips, setClips] = useState([]);
   const [filter, setFilter] = useState("");
   const [loading, setLoading] = useState(true);
+  const [username, setUsername] = useState(user?.username || "");
+  const [savingUsername, setSavingUsername] = useState(false);
 
   // Pagination State
   const [page, setPage] = useState(0);
@@ -17,6 +19,10 @@ export default function Dashboard({ user }) {
   const [editContent, setEditContent] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
   const [viewingClip, setViewingClip] = useState(null);
+
+  useEffect(() => {
+    setUsername(user?.username || "");
+  }, [user?.username]);
 
   useEffect(() => {
     if (user?.username) {
@@ -36,6 +42,34 @@ export default function Dashboard({ user }) {
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
     toast.success("Copied to clipboard");
+  };
+
+  const handleUsernameSave = async (e) => {
+    e.preventDefault();
+
+    const nextUsername = username.trim();
+    if (!nextUsername) {
+      toast.error("Username cannot be empty.");
+      return;
+    }
+
+    if (nextUsername === user?.username) {
+      toast.info("Username already matches the current value.");
+      return;
+    }
+
+    setSavingUsername(true);
+    try {
+      const updatedUser = await updateUsername(nextUsername);
+      setUser(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      toast.success("Username updated successfully!");
+    } catch (err) {
+      toast.error(err.message || "Failed to update username");
+      setUsername(user?.username || "");
+    } finally {
+      setSavingUsername(false);
+    }
   };
 
  const isBase64File = (content) => {
@@ -160,24 +194,66 @@ const downloadFile = async (content, code = "file") => {
 
   return (
     <div className="px-4 md:px-20 mx-auto py-8 md:py-12 font-sans">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-            <Terminal className="w-6 h-6 text-gray-400" />
-            Clip History
-          </h1>
-          <p className="text-gray-500 text-sm mt-1">Manage your synced content.</p>
+      <div className="grid gap-6 mb-8 lg:grid-cols-[1.25fr_0.75fr]">
+        <div className="bg-[#0A0A0A] border border-[#141416] rounded-lg overflow-hidden">
+          <div className="p-5 md:p-6 border-b border-[#141416] flex flex-col md:flex-row md:items-center gap-4 md:gap-5">
+            <div className="w-20 h-20 rounded-2xl overflow-hidden border border-[#222] bg-[#111] flex items-center justify-center shrink-0">
+              {user?.avatarUrl ? (
+                <img src={user.avatarUrl} alt={user?.username || "Profile"} className="w-full h-full object-cover" />
+              ) : (
+                <User className="w-8 h-8 text-gray-500" />
+              )}
+            </div>
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+                <Terminal className="w-6 h-6 text-gray-400" />
+                Dashboard
+              </h1>
+              <p className="text-gray-500 text-sm mt-1">Manage your clips, username, and account details.</p>
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                <div className="bg-[#111] border border-[#222] rounded p-3 flex items-center gap-3">
+                  <Mail className="w-4 h-4 text-gray-500 shrink-0" />
+                  <span className="text-sm text-gray-300 break-all">{user?.email || "No email available"}</span>
+                </div>
+                <form onSubmit={handleUsernameSave} className="flex items-center gap-2 bg-[#111] border border-[#222] rounded p-2">
+                  <Pencil className="w-4 h-4 text-gray-500 ml-1 shrink-0" />
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="bg-transparent border-none text-white w-full p-1 text-sm focus:outline-none placeholder-gray-700"
+                    placeholder="Edit username"
+                  />
+                  <button
+                    type="submit"
+                    disabled={savingUsername}
+                    className="bg-[#1A1A1A] hover:bg-[#222] border border-[#333] hover:border-white text-white px-4 py-2 rounded text-xs font-bold tracking-wide uppercase transition-all flex items-center gap-2 disabled:opacity-60"
+                  >
+                    {savingUsername ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                    Save
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="relative w-full md:w-64">
-          <Search className="absolute left-3 top-2.5 text-gray-500 w-4 h-4" />
-          <input
-            type="text"
-            placeholder="Filter current page..."
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="w-full bg-[#0A0A0A] border border-[#141416] text-gray-300 pl-9 pr-4 py-2 rounded text-sm focus:ring-1 focus:ring-gray-600 outline-none placeholder-gray-600"
-          />
+
+        <div className="bg-[#0A0A0A] border border-[#141416] rounded-lg p-5 md:p-6 flex flex-col justify-between gap-4">
+          <div>
+            <p className="text-xs uppercase tracking-[0.2em] text-gray-500 font-bold">Account</p>
+            <p className="text-white font-semibold mt-2">Signed in as</p>
+            <p className="text-sm text-gray-400 mt-1 break-all">{user?.username}</p>
+          </div>
+          <div className="relative w-full">
+            <Search className="absolute left-3 top-2.5 text-gray-500 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Filter current page..."
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              className="w-full bg-[#111] border border-[#141416] text-gray-300 pl-9 pr-4 py-2 rounded text-sm focus:ring-1 focus:ring-gray-600 outline-none placeholder-gray-600"
+            />
+          </div>
         </div>
       </div>
 
@@ -358,7 +434,7 @@ const downloadFile = async (content, code = "file") => {
               </div>
 
               <div className="max-h-[60vh] overflow-y-auto mb-6 bg-[#050505] rounded-md p-4 border border-[#111]">
-                <pre className="text-gray-300 text-sm font-mono whitespace-pre-wrap break-words">
+                <pre className="text-gray-300 text-sm font-mono whitespace-pre-wrap wrap-break-word">
                   {viewingClip.content}
                 </pre>
               </div>

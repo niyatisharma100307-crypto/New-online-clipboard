@@ -7,4 +7,8 @@ public interface UserService {
     UserDto createUser(UserDto userDto);
 
     UserDto updatePassword(UserPasswordUpdate userDto);
+
+    UserDto createOrGetClerkUser(String clerkId, String email, String username, String avatarUrl);
+
+    UserDto updateClerkUsername(String clerkId, String username);
 }

@@ -1,11 +1,11 @@
 package com.online_clipboard_backend.dto;
 
 
-import lombok.Data;
-
 import java.io.Serial;
-import java.time.LocalDateTime;
 import java.io.Serializable;
+import java.time.LocalDateTime;
+
+import lombok.Data;
 
 @Data
 public class ClipDto implements Serializable {
@@ -20,5 +20,6 @@ public class ClipDto implements Serializable {
     private LocalDateTime createdAt;
     private boolean visible;
     private String fileName;
+    private String avatarUrl;
 
 }

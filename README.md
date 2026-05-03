@@ -157,6 +157,17 @@ We welcome contributions of all levels!
 
 ---
 
+## 🤝 Contributors
+
+Thanks to these amazing people:
+
+<a href="https://github.com/Shaurya01836/online-clipboard/graphs/contributors">
+	<img src="https://contrib.rocks/image?repo=Shaurya01836/online-clipboard" />
+</a>
+
+
+
+
 ## 📌 Roadmap
 
 * 🔄 Real-time sync across devices

@@ -253,11 +253,19 @@ const downloadFile = async (content, code = "file") => {
           transition={{ duration: 0.3 }}
         >
           {clips.map((clip) => (
-            <div key={clip.id} className="flex flex-col md:grid md:grid-cols-12 gap-3 md:gap-0 md:items-center py-4 px-4 hover:bg-[#161616] transition-colors group text-sm font-mono items-start md:items-center">
+            <div key={clip.id} className="flex flex-col md:grid md:grid-cols-12 gap-3 md:gap-0 md:items-center py-4 px-4 hover:bg-[#161616] transition-colors group text-sm font-mono items-start">
               <div className="md:col-span-2 flex items-center w-full md:w-auto">
                 <div className="flex items-center gap-2 overflow-hidden">
-                  <div className="w-6 h-6 rounded-full bg-blue-900/30 flex items-center justify-center border border-blue-500/20 shrink-0"><User className="w-3 h-3 text-blue-400" /></div>
-                  <span className="text-gray-300 truncate font-bold text-base md:text-xs">{clip.username || "Anonymous"}</span>
+                  <div className="w-7 h-7 rounded-full overflow-hidden bg-blue-900/30 flex items-center justify-center border border-blue-500/20 shrink-0">
+                    {clip.avatarUrl ? (
+                      <img src={clip.avatarUrl} alt={clip.username || "Anonymous"} className="w-full h-full object-cover" />
+                    ) : (
+                      <User className="w-3.5 h-3.5 text-blue-400" />
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <span className="block text-gray-100 truncate font-bold text-sm md:text-xs">{clip.username || "Anonymous"}</span>
+                  </div>
                 </div>
               </div>
               <div className="hidden md:block md:col-span-1"><span className="text-blue-500 font-bold">#{clip.code}</span></div>
@@ -272,11 +280,21 @@ const downloadFile = async (content, code = "file") => {
               </div>
               <div className="hidden md:flex md:col-span-2 items-center gap-2 text-xs text-gray-600"><Clock className="w-3 h-3" />{formatDate(clip.createdAt)}</div>
               {/* Mobile-only: code + timestamp — sits just above the action icons */}
-              <div className="flex md:hidden items-center gap-3 order-last md:order-none border-t border-[#141416] pt-3 w-full">
+              <div className="flex md:hidden items-center gap-3 order-last md:order-0 border-t border-[#141416] pt-3 w-full">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <div className="w-6 h-6 rounded-full overflow-hidden bg-blue-900/30 flex items-center justify-center border border-blue-500/20 shrink-0">
+                    {clip.avatarUrl ? (
+                      <img src={clip.avatarUrl} alt={clip.username || "Anonymous"} className="w-full h-full object-cover" />
+                    ) : (
+                      <User className="w-3 h-3 text-blue-400" />
+                    )}
+                  </div>
+                  <span className="text-gray-100 font-bold text-xs truncate">{clip.username || "Anonymous"}</span>
+                </div>
                 <span className="text-blue-500 font-bold text-xs">#{clip.code}</span>
                 <div className="flex items-center gap-1 text-xs text-gray-500"><Clock className="w-3 h-3" />{formatDate(clip.createdAt)}</div>
               </div>
-              <div className="md:col-span-1 flex justify-start md:justify-end flex-wrap gap-2 order-last md:order-none pt-3 md:pt-0 border-t border-[#141416] md:border-t-0 w-full md:w-auto">
+              <div className="md:col-span-1 flex justify-start md:justify-end flex-wrap gap-2 order-last md:order-0 pt-3 md:pt-0 border-t border-[#141416] md:border-t-0 w-full md:w-auto">
                 {!isBase64File(clip.content) && (
                   <button 
                     onClick={() => setViewingClip(clip)} 
@@ -337,8 +355,12 @@ const downloadFile = async (content, code = "file") => {
             >
               <div className="flex items-center justify-between mb-6 pb-4 border-b border-[#141416]">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-blue-900/30 flex items-center justify-center border border-blue-500/20">
-                    <User className="w-5 h-5 text-blue-400" />
+                  <div className="w-10 h-10 rounded-full overflow-hidden bg-blue-900/30 flex items-center justify-center border border-blue-500/20 shrink-0">
+                    {viewingClip.avatarUrl ? (
+                      <img src={viewingClip.avatarUrl} alt={viewingClip.username || "Anonymous"} className="w-full h-full object-cover" />
+                    ) : (
+                      <User className="w-5 h-5 text-blue-400" />
+                    )}
                   </div>
                   <div>
                     <h2 className="text-white font-bold">{viewingClip.username || "Anonymous"}</h2>
@@ -354,7 +376,7 @@ const downloadFile = async (content, code = "file") => {
               </div>
 
               <div className="max-h-[60vh] overflow-y-auto mb-6 bg-[#050505] rounded-md p-4 border border-[#111]">
-                <pre className="text-gray-300 text-sm font-mono whitespace-pre-wrap break-words">
+                <pre className="text-gray-300 text-sm font-mono whitespace-pre-wrap wrap-break-word">
                   {viewingClip.content}
                 </pre>
               </div>

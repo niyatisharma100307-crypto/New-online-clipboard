@@ -280,19 +280,12 @@ const downloadFile = async (content, code = "file") => {
               </div>
               <div className="hidden md:flex md:col-span-2 items-center gap-2 text-xs text-gray-600"><Clock className="w-3 h-3" />{formatDate(clip.createdAt)}</div>
               {/* Mobile-only: code + timestamp — sits just above the action icons */}
-              <div className="flex md:hidden items-center gap-3 order-last md:order-0 border-t border-[#141416] pt-3 w-full">
-                <div className="flex items-center gap-2 min-w-0 flex-1">
-                  <div className="w-6 h-6 rounded-full overflow-hidden bg-blue-900/30 flex items-center justify-center border border-blue-500/20 shrink-0">
-                    {clip.avatarUrl ? (
-                      <img src={clip.avatarUrl} alt={clip.username || "Anonymous"} className="w-full h-full object-cover" />
-                    ) : (
-                      <User className="w-3 h-3 text-blue-400" />
-                    )}
-                  </div>
-                  <span className="text-gray-100 font-bold text-xs truncate">{clip.username || "Anonymous"}</span>
+              <div className="flex md:hidden items-center justify-between gap-3 order-last md:order-0 border-t border-[#141416] pt-3 w-full text-xs">
+                <span className="text-blue-500 font-bold">#{clip.code}</span>
+                <div className="flex items-center gap-1 text-gray-500">
+                  <Clock className="w-3 h-3" />
+                  {formatDate(clip.createdAt)}
                 </div>
-                <span className="text-blue-500 font-bold text-xs">#{clip.code}</span>
-                <div className="flex items-center gap-1 text-xs text-gray-500"><Clock className="w-3 h-3" />{formatDate(clip.createdAt)}</div>
               </div>
               <div className="md:col-span-1 flex justify-start md:justify-end flex-wrap gap-2 order-last md:order-0 pt-3 md:pt-0 border-t border-[#141416] md:border-t-0 w-full md:w-auto">
                 {!isBase64File(clip.content) && (

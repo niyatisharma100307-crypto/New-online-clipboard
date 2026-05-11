@@ -17,6 +17,25 @@ Built with a **React frontend** and **Spring Boot backend**, it ensures your imp
 ![Online Clipboard user flow](assets/user-flow.svg)
 
 ---
+## 📸 Screenshots
+
+### Home Page
+
+![Home Page](assets/screenshots/home.png)
+
+### Offline Sync
+
+![Offline Sync](assets/screenshots/offline-sync.png)
+
+### Community Clips
+
+![Community Clips](assets/screenshots/community.png)
+
+
+---
+
+
+
 
 ## 🚀 Features
 

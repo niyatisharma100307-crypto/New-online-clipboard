@@ -42,13 +42,13 @@ Think of it as a lightweight, cross-device clipboard that lives in the cloud.
 ## 📸 Screenshots
 
 ### 🏠 Home Page
-<img src="https://raw.githubusercontent.com/niyatisharma100307-crypto/New-online-clipboard/main/assets/screenshots/home.png" alt="Home Page" width="100%"/>
+<img src="https://raw.githubusercontent.com/niyatisharma100307-crypto/New-online-clipboard/main/assets/home.png.png" alt="Home Page" width="100%"/>
 
 ### 🔄 Offline Sync
-<img src="https://raw.githubusercontent.com/niyatisharma100307-crypto/New-online-clipboard/main/assets/screenshots/offline-sync.png" alt="Offline Sync" width="100%"/>
+<img src="https://raw.githubusercontent.com/niyatisharma100307-crypto/New-online-clipboard/main/assets/offline-sync.png.png" alt="Offline Sync" width="100%"/>
 
 ### 🌍 Community Clips
-<img src="https://raw.githubusercontent.com/niyatisharma100307-crypto/New-online-clipboard/main/assets/screenshots/community.png" alt="Community Clips" width="100%"/>
+<img src="https://raw.githubusercontent.com/niyatisharma100307-crypto/New-online-clipboard/main/assets/community.png.png" alt="Community Clips" width="100%"/>
 
 ---
 
@@ -200,11 +200,10 @@ online-clipboard/
 │   ├── src/
 │   ├── public/
 │   └── package.json
-├── assets/                       # Screenshots and diagrams
-│   ├── screenshots/
-│   │   ├── home.png
-│   │   ├── offline-sync.png
-│   │   └── community.png
+├── assets/
+│   ├── home.png.png
+│   ├── offline-sync.png.png
+│   ├── community.png.png
 │   ├── workflow.svg
 │   └── user-flow.svg
 └── README.md
